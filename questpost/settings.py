@@ -41,6 +41,10 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "rest_framework",
+    "whitenoise.runserver_nostatic",
+    "questpost.web3.apps.MoralisConfig",
+    "questpost.home.apps.HomeConfig",
 ]
 
 MIDDLEWARE = [
@@ -77,14 +81,6 @@ WSGI_APPLICATION = "questpost.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-"""
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-"""
 
 DATABASES = {
     "default": {
@@ -94,9 +90,11 @@ DATABASES = {
         "PASSWORD": os.environ.get("DATABASE_PASSWORD"),
         "HOST": os.environ.get("DATABASE_HOST"),
         "PORT": os.environ.get("DATABASE_PORT"),
+        "OPTIONS": {
+            "sslmode": os.environ.get("DATABASE_SSLMODE"),
+        },
     }
 }
-print(DATABASES)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators

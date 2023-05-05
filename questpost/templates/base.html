@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- trying to import eth-crypto
+{% load static %}
+<script src="{% static 'eth-crypto-bundle.js' %}"></script>
+-->
+
+<head>
+    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}" />
+    <link href="https://fonts.googleapis.com/css?family=Lexend+Exa&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <header>
+        <div class="logo-title-container">
+            <a href="/" class="logo-title-link">
+                <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
+                <span class="title">questpost.xyz</span>
+            </a>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="/quests">Market</a></li>
+                <li><a href="/profile">Profile</a></li>
+            </ul>
+            {% if user.is_authenticated %}
+            <div class="button-container">
+                <button class="btn auth-button"
+                    onclick=window.location.href="{% url 'logout' %}?next={% url 'moralis_auth' %}">Logout</button>
+            </div>
+            {% else %}
+            <div class="button-container">
+                <button class="btn auth-button" id="auth-metamask">Login</button>
+            </div>
+            {% endif %}
+        </nav>
+    </header>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+
+    <div class="connection-status">
+        {% if user.is_authenticated %}
+        <span>Connected as {{request.user.username}}</span>
+        {% else %}
+        <span>Not connected</span>
+        {% endif %}
+    </div>
+    {% if not user.is_authenticated %}
+    <script>
+        const elBtnMetamask = document.getElementById('auth-metamask');
+
+        const handleApiPost = async (endpoint, params) => {
+            const result = await axios.post(`${endpoint}`, params, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    "X-CSRFToken": '{{ csrf_token }}' // fix this
+                },
+            });
+
+            return result.data;
+        };
+
+        const requestMessage = (account, chain) =>
+            handleApiPost("{% url 'moralis:request_message' %}", {
+                address: account,
+                chain: chain,
+                network: 'evm',
+            });
+
+        const verifyMessage = (message, signature) =>
+            handleApiPost("{% url 'moralis:verify_message' %}", {
+                message,
+                signature,
+                network: 'evm',
+            });
+
+        const connectToMetamask = async () => {
+            const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+
+            const [accounts, chainId] = await Promise.all([
+                provider.send('eth_requestAccounts', []),
+                provider.send('eth_chainId', []),
+            ]);
+
+            const signer = provider.getSigner();
+            return { signer, chain: chainId, account: accounts[0] };
+        };
+
+        const handleAuth = async () => {
+            // Connect to Metamask
+            const { signer, chain, account } = await connectToMetamask();
+            console.log("account", account, "chain", chain)
+
+            if (!account) {
+                throw new Error('No account found');
+            }
+            if (!chain) {
+                throw new Error('No chain found');
+            }
+
+            const { message } = await requestMessage(account, chain);
+            const signature = await signer.signMessage(message);
+            const { user } = await verifyMessage(message, signature);
+            console.log(user)
+            if (user) {
+                location.reload();
+            }
+            else {
+                alert("authentication error")
+            }
+        };
+
+
+        function init() {
+            elBtnMetamask.addEventListener('click', async () => {
+                handleAuth().catch((error) => console.log(error));
+            });
+        }
+
+        window.addEventListener('load', () => {
+            init();
+        });
+
+    </script>
+    {% endif %}
+
+    {% block head %}
+
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} {% endblock %}</title>
+    {% endblock %}
+</head>
+
+<body>
+    <div id="content">
+        {% block content %}{% endblock %}
+    </div>
+</body>
+
+</html>
