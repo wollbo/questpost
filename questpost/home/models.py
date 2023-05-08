@@ -9,8 +9,8 @@ class Quest(models.Model):
     reward = models.BigIntegerField(blank=False)
     duration = models.BigIntegerField(blank=False)
     source = models.BigIntegerField(blank=False)
-    quester = models.CharField(max_length=50),
-    deadline = models.BigIntegerField(),
+    quester = models.CharField(max_length=50)
+    deadline = models.BigIntegerField(null=True)
     claimable = models.BooleanField(default=True) # if quest can be claimed
     active = models.BooleanField(default=False) # if quest is being worked on
     status = models.CharField(max_length=20)

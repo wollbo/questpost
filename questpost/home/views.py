@@ -17,27 +17,33 @@ def hero(request: HttpRequest) -> HttpResponse:
     return render(request, "hero.html", {})
 
 
-def moralis_auth(request: HttpRequest) -> HttpResponse:
+def web3_auth(request: HttpRequest) -> HttpResponse:
     return render(request, "base.html", {})
 
 
 def profile(request: HttpRequest) -> HttpResponse:
     user = request.user.get_username()
+    quests = {}
+    questgiver = {}
     if user:
-        quests = Quest.objects.filter(quester=user.lower()) # consider separating into active/completed quests
-        questgiver = Quest.objects.filter(owner=user.lower()).distinct(
-            "address"
-        )
+        try:
+            quests = Quest.objects.filter(quester=user.lower()) # consider separating into active/completed quests
+            questgiver = Quest.objects.filter(owner=user.lower()).distinct(
+                "address"
+            )
+        except Exception as e:
+            print(e)
     return render(request, "profile.html", {"quests": quests, "questgiver": questgiver})
 
 
 def quests(request: HttpRequest) -> HttpResponse:
+    context = {}
     try:
         quests = Quest.objects.filter(claimable=True, active=False).distinct("address")
         context = {"valid": True, "quests": quests}
     except Exception as e:
         print(e)
-    return render(request, "market.html", {"quests": context})
+    return render(request, "quests.html", {"quests": context})
 
 
 # view for receiving stream webhook data

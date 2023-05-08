@@ -18,13 +18,13 @@
         </div>
         <nav>
             <ul>
-                <li><a href="/quests">Market</a></li>
+                <li><a href="/quests">Quests</a></li>
                 <li><a href="/profile">Profile</a></li>
             </ul>
             {% if user.is_authenticated %}
             <div class="button-container">
                 <button class="btn auth-button"
-                    onclick=window.location.href="{% url 'logout' %}?next={% url 'moralis_auth' %}">Logout</button>
+                    onclick=window.location.href="{% url 'logout' %}?next={% url 'web3_auth' %}">Logout</button>
             </div>
             {% else %}
             <div class="button-container">
@@ -60,14 +60,14 @@
         };
 
         const requestMessage = (account, chain) =>
-            handleApiPost("{% url 'moralis:request_message' %}", {
+            handleApiPost("{% url 'web3:request_message' %}", {
                 address: account,
                 chain: chain,
                 network: 'evm',
             });
 
         const verifyMessage = (message, signature) =>
-            handleApiPost("{% url 'moralis:verify_message' %}", {
+            handleApiPost("{% url 'web3:verify_message' %}", {
                 message,
                 signature,
                 network: 'evm',

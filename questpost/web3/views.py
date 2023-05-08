@@ -21,8 +21,8 @@ def request_message(request: HttpRequest) -> JsonResponse:
         "address": data["address"],
         "statement": "Please confirm",
         "uri": "https://questpost.xyz/",
-        "expirationTime": "2030-01-01T00:00:00.000Z",
-        "notBefore": "2026-01-01T00:00:00.000Z",
+        "expirationTime": "2026-01-01T00:00:00.000Z",
+        "notBefore": "2023-01-01T00:00:00.000Z",
         "timeout": 15,
     }
     x = requests.post(
