@@ -6,4 +6,76 @@
 
 {% block title %} Profile {% endblock %}
 {% block content %}
+{% if request.user.is_authenticated %}
+<div class="quest-creation-container">
+    <div class="user-info">
+        <p>Authenticated as {{ user }}</p>   
+    </div>
+    <div class="task-selection-container" style="margin-top: 20px;">
+        <select class="task-dropdown" name="task" id="tasks">
+            <option value="1">Twitter followers</option> <!-- Api follower of account -->
+            <option value="2">Google ranking</option> <!-- -->
+            <option value="3">Spotify listens</option>
+        </select>
+    </div>
+    <div class="quest-form">
+        <input type="text" id="input-eth" value="Enter reward amount">
+        <input type="text" id="input-duration" value="Enter duration in days"> <!-- Change to calendar select -->
+        <input type="text" id="input-target" value="Enter target value"> <!-- Link this to task -->
+        <div class="new-quest-button-container">
+            <button id="new-quest">New Quest</button>
+        </div>
+    </div>
+</div>
+{% endif %}
+<script>
+
+    const CONTRACT_ADDRESS = "0x8bf7A1E03f8EEAfe8D66467c82FDcc9b11860500" // change to from .env file 
+    const newQuestBtn = document.getElementById("new-quest")
+
+    let rewardValue;
+    function updateRewardValue() {
+        rewardValue = document.getElementById("input-eth").value;
+        console.log(rewardValue);
+    }
+
+    let durationValue;
+    function updateDurationValue() {
+        durationValue = document.getElementById("input-duration").value;
+        console.log(durationValue);
+    }
+
+    let targetValue;
+    function updateTargetValue() {
+        targetValue = document.getElementById("input-target").value;
+        console.log(targetValue);
+    }
+
+    async function createNewQuest(event) {
+        let jsonData;
+        await fetch("{% url 'web3:fetch_abi' %}")
+            .then(response => response.json())
+            .then(data => jsonData = data)
+
+        console.log(jsonData);
+
+        const { ethereum } = window;
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner()
+        const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, jsonData, signer)
+
+        var inWei = (parseFloat(rewardValue.replace(/,/g, '.')) * 10 ** 18).toString()
+        console.log(inWei)
+
+        const sourceCode = "TESTDATA.js"
+
+        let tx = await connectedContract.newQuest(targetValue, inWei, sourceCode, durationValue, { value: inWei });
+
+    }
+
+    document.getElementById("input-eth").oninput = updateRewardValue;
+    document.getElementById("input-duration").oninput = updateDurationValue;
+    document.getElementById("input-target").oninput = updateTargetValue;
+    document.getElementById("new-quest").addEventListener("click", createNewQuest);
+</script>
 {% endblock %}

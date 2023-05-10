@@ -68,12 +68,12 @@ def verify_message(request: HttpRequest) -> JsonResponse:
     else:
         return JsonResponse(json.loads(x.text))
 
-
+# NOTE: base dir is questpost in this project
 def fetch_abi(request: HttpRequest) -> JsonResponse:
     """
     Loads and returns abi to front end
     """
-    abi_path = os.path.join(settings.BASE_DIR, "abi.json")
+    abi_path = os.path.join(settings.BASE_DIR, "questpost/abi.json")
     with open(abi_path) as json_file:
         data = json.load(json_file)
     return JsonResponse(data, safe=False)
@@ -83,7 +83,7 @@ def fetch_quest_abi(request: HttpRequest) -> JsonResponse:
     """
     Loads and returns quest abi to front end
     """
-    quest_abi_path = os.path.join(settings.BASE_DIR, "quest_abi.json")
+    quest_abi_path = os.path.join(settings.BASE_DIR, "questpost/quest_abi.json")
     with open(quest_abi_path) as json_file:
         data = json.load(json_file)
     return JsonResponse(data, safe=False)

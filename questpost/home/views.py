@@ -47,7 +47,7 @@ def quests(request: HttpRequest) -> HttpResponse:
 
 
 # view for receiving stream webhook data
-def streams_reciever(request: HttpRequest): # removed render
+def streams_reciever(request: HttpRequest) -> HttpResponse: 
     logger.debug("Received request")
     print("parsing...")
     webhook_data = json.loads(request.body)
@@ -59,6 +59,8 @@ def streams_reciever(request: HttpRequest): # removed render
         logger.debug(f"Decoded logs:  {decoded_log}")
         print(f"Writing to database... Event {decoded_log['event']}")
         streams_handler(decoded_log)
+
+    return HttpResponse()
 
 
 def streams_handler(decoded_log: dict):
