@@ -1,12 +1,6 @@
-// JavaScript code served to frontend
-// which user then confirms and writes as quest to the blockchain
-// Spotify task
-// secrets should be entered at the same time
-//var ARTIST_ID = "0qlXJWX3evE1trCvmOTPAU";
+var artistId = args[0]
 
-var ARTIST_ID = args[0]
-
-const clientIdAndSecret = secrets.CLIENT_ID + ':' + secrets.CLIENT_SECRET;
+const clientIdAndSecret = secrets.clientId + ':' + secrets.clientSecret;
 const base64Encoded = Buffer.from(clientIdAndSecret).toString('base64');
 
 
@@ -25,7 +19,7 @@ const oauthTokenResponse = await Functions.makeHttpRequest({
 if (!oauthTokenResponse.error) {
     console.log(oauthTokenResponse.data.access_token);
     const artistPopularityResponse = await Functions.makeHttpRequest({
-        url: `https://api.spotify.com/v1/artists/${ARTIST_ID}`,
+        url: `https://api.spotify.com/v1/artists/${artistId}`,
         headers: {
             'Authorization': `Bearer ${oauthTokenResponse.data["access_token"]}`,
             'Content-Type': 'application/json',

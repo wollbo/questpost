@@ -15,7 +15,7 @@
         <select class="task-dropdown" name="task" id="tasks">
             <option value="1">Twitter followers</option> <!-- Api follower of account -->
             <option value="2">Google ranking</option> <!-- -->
-            <option value="3">Spotify listens</option>
+            <option value="3">Spotify popularity</option>
         </select>
     </div>
     <div class="quest-form">
@@ -32,6 +32,11 @@
 
     const CONTRACT_ADDRESS = "0x8bf7A1E03f8EEAfe8D66467c82FDcc9b11860500" // change to from .env file 
     const newQuestBtn = document.getElementById("new-quest")
+
+    let taskIndex;
+    function updateTaskIndex() {
+        taskIndex = document.getElementById("tasks").value;
+    }
 
     let rewardValue;
     function updateRewardValue() {
@@ -67,9 +72,7 @@
         var inWei = (parseFloat(rewardValue.replace(/,/g, '.')) * 10 ** 18).toString()
         console.log(inWei)
 
-        const sourceCode = "TESTDATA.js"
-
-        let tx = await connectedContract.newQuest(targetValue, inWei, sourceCode, durationValue, { value: inWei });
+        let tx = await connectedContract.newQuest(targetValue, inWei, taskIndex, durationValue, { value: inWei });
 
     }
 

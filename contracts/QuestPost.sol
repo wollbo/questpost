@@ -7,25 +7,45 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 // Oracle address
 // 0xeA6721aC65BCeD841B8ec3fc5fEdeA6141a0aDE4
+// Artist id
+// ["0qlXJWX3evE1trCvmOTPAU"]
+// QuestParams
+// [1, 1000, 0, 10000, ["0qlXJWX3evE1trCvmOTPAU"]]
+
+struct QuestParams {
+    uint256 target;
+    uint256 reward;
+    uint questIndex;
+    uint256 duration;
+    string[] args;
+}
 
 contract QuestPost is FunctionsClient, Ownable {
     using Functions for Functions.Request;
+
+    uint64 subscriptionId;
 
     bytes32 public latestRequestId;
     bytes public latestResponse;
     bytes public latestError;
     mapping(bytes32 => address) requestIDs; // used to map back request to quest
 
-    constructor(address oracle) FunctionsClient(oracle) {}
+    uint questCounter;
+
+    constructor(address oracle, uint64 _subscriptionId) FunctionsClient(oracle) {
+        subscriptionId = _subscriptionId;
+    }
 
     event OCRResponse(bytes32 indexed requestId, bytes result, bytes err);
 
     mapping(address => bool) quests;
-    uint256 ORACLE_PAYMENT = 3 * 10**17; // Payment + Subscription margin
+
+    mapping(uint => string) questDefinitions;
+    mapping(uint => bytes) questSecrets;
 
     modifier questsOnly() {
-            require(quests[msg.sender], "Sender is not a Quest");
-            _;
+        require(quests[msg.sender], "Sender is not a Quest");
+        _;
     }
 
     event NewQuest(
@@ -34,94 +54,88 @@ contract QuestPost is FunctionsClient, Ownable {
             uint target,
             uint reward,
             uint duration,
-            string indexed source
+            uint questIndex,
+            string[] args
     );
 
     event QuestAccepted(
             address indexed quest,
             address indexed owner,
             uint target,
-            uint reward,
-            uint duration,
-            string source,
+            uint questIndex,
             address indexed quester,
             uint deadline
     );
 
-    event QuestFinished( // its ok to emit source, we dont have to store it completely in database
+    event QuestFinished( 
             address indexed quest,
             address indexed owner,
             uint target,
-            uint reward,
-            uint duration,
-            string source,
+            uint questIndex,
             address indexed quester,
             uint deadline,
+            uint value,
             string status
     );
 
-    function emitQuestAccepted(address _quest, address _owner, uint _target, uint _reward, uint _duration, string calldata _source, address _quester, uint _deadline) public questsOnly {
+    function emitQuestAccepted(address _quest, address _owner, uint _target, uint _questIndex, address _quester, uint _deadline) public questsOnly {
             emit QuestAccepted(
                     _quest,
                     _owner,
                     _target,
-                    _reward,
-                    _duration,
-                    _source,
+                    _questIndex,
                     _quester,
                     _deadline
             );
     }
 
-    function emitQuestFinished(address _quest,address _owner, uint _target, uint _reward, uint _duration, string calldata _source, address _quester, uint _deadline, string calldata _status) public questsOnly {
+    function emitQuestFinished(address _quest, address _owner, uint _target, uint _questIndex, address _quester, uint _deadline, uint _value, string calldata _status) public questsOnly {
         emit QuestFinished(
                     _quest,
                     _owner,
                     _target,
-                    _reward,
-                    _duration,
-                    _source,
+                    _questIndex,
                     _quester,
                     _deadline,
+                    _value,
                     _status
             );
     }
 
-    function oraclePayment() public view returns (uint256) {
-        return ORACLE_PAYMENT;
+
+    function updateSubscriptionId(uint64 _newSubscriptionId) external onlyOwner {
+        subscriptionId = _newSubscriptionId;
     }
 
-    function updateOraclePayment(uint256 _newOraclePayment) external onlyOwner {
-        ORACLE_PAYMENT = _newOraclePayment;
+    function registerNewQuest(string calldata _questDefinition, bytes calldata _secrets) external {
+        require(msg.sender == owner());
+        questDefinitions[questCounter] = _questDefinition;
+        questSecrets[questCounter] = _secrets;
+        questCounter += 1;
     }
 
-    function swap() external payable {
-        // Creates a reservation for the quest to make one call to the functions subscription
-        /// @notice replace with aggregatorV3Interface for LINKETH
-        uint256 LINKETH = 5 * 10**15;
-        /// @notice ORACLE_PAYMENT 18 decimals
-        require(msg.value >= (LINKETH * ORACLE_PAYMENT) / (10**18));
+    function getQuestDefinition(uint _questIndex) external view returns (string memory) {
+        return questDefinitions[_questIndex];
+    }
+
+    function getQuestSecret(uint _questIndex) external view returns (bytes memory) {
+        return questSecrets[_questIndex];
     }
 
     function newQuest(
-        uint256 _target,
-        uint256 _reward,
-        string calldata _source,
-        uint256 _duration // seconds
+        QuestParams calldata params
     ) external payable {
-        require(msg.value == _reward, "Incorrect reward amount");
-        Quest q = new Quest{value: _reward}(_target, _reward, _source, _duration);
+        require(msg.value == params.reward, "Incorrect reward amount");
+        Quest q = new Quest{value: params.reward}(params);
         quests[address(q)] = true;
-        emit NewQuest(address(q), msg.sender, _target, _reward, _duration, _source);
+        emit NewQuest(address(q), msg.sender, params.target, params.reward, params.duration, params.questIndex, params.args);
     }
 
     function executeRequest(
-        address _questAddress,
+        address _questAddress,    
         string calldata source,
         bytes calldata secrets,
-        Functions.Location secretsLocation,
         string[] calldata args,
-        uint64 subscriptionId,
         uint32 gasLimit
     ) public returns (bytes32) {
         Functions.Request memory req;
@@ -130,17 +144,12 @@ contract QuestPost is FunctionsClient, Ownable {
             Functions.CodeLanguage.JavaScript,
             source
         );
-        if (secrets.length > 0) {
-            if (secretsLocation == Functions.Location.Inline) {
-                req.addInlineSecrets(secrets);
-            } else {
-                req.addRemoteSecrets(secrets);
-            }
-        }
+        req.addRemoteSecrets(secrets);
+
         if (args.length > 0) req.addArgs(args);
-        bytes32 assignedReqID = sendRequest(req, subscriptionId, gasLimit);
+        bytes32 assignedReqID = sendRequest(req, subscriptionId, gasLimit); 
         requestIDs[assignedReqID] = _questAddress;
-        latestRequestId = assignedReqID;
+        latestRequestId = assignedReqID; // mumbai explorer says in transaction logs "error in callback"...
         return assignedReqID;
     }
 
@@ -149,12 +158,11 @@ contract QuestPost is FunctionsClient, Ownable {
         bytes memory response,
         bytes memory err
     ) internal override {
-        // add require msg.sender is oracle
         latestResponse = response;
         latestError = err;
         emit OCRResponse(requestId, response, err);
-        Quest q = Quest(payable(requestIDs[requestId]));
-        q.receiveFulfillmentStatus(requestId, response, err);
+        Quest q = Quest(requestIDs[requestId]);
+        q.receiveFulfillmentStatus(response, err);
     }
 }
 
@@ -172,9 +180,14 @@ contract Quest {
     uint256 duration;
     uint256 deadline;
 
+    uint questIndex;
+    string[] args;
+
+    uint responseAsUint;
+
+
     bytes response;
     bytes err;
-    string source;
 
     QuestPost qp;
 
@@ -187,83 +200,82 @@ contract Quest {
     State public state;
 
     constructor(
-        uint256 _target,
-        uint256 _reward,
-        string memory _source,
-        uint256 _duration
+        QuestParams memory params
     ) payable {
         questpost = payable(msg.sender);
         qp = QuestPost(questpost);
         owner = payable(tx.origin);
-        target = _target;
-        reward = _reward;
-        source = _source;
-        duration = _duration;
+        target = params.target;
+        reward = params.reward;
+        questIndex = params.questIndex;
+        duration = params.duration;
+        args = params.args;
     }
 
     // add collateral requirement equal to staking APR * duration * reward
     // it could be that questgiver should fund the functions subscription
     function claim() external payable {
-        qp.swap{value: msg.value}();
         quester = payable(msg.sender);
         deadline = block.timestamp + duration;
         qp.emitQuestAccepted(
             address(this),
             owner,
             target,
-            reward,
-            duration,
-            source,
+            questIndex,
             quester,
             deadline
         );
         state = State.CLAIMED;
-        // add keeper job to call main contract with this contract parameters
+    }
+
+    function callFulfillmentStatus(uint32 gasLimit) external {
+        require(msg.sender == quester);
+        qp.executeRequest(
+            address(this), 
+            qp.getQuestDefinition(questIndex), 
+            qp.getQuestSecret(questIndex), 
+            args, 
+            gasLimit
+        );
     }
 
     function receiveFulfillmentStatus(
-        bytes32 _requestId,
         bytes calldata _response,
         bytes calldata _err
-    ) external returns (bytes32) {
-        require(msg.sender == questpost); // callback from subscription -> questpost -> quest
+    ) external {
+        // relax this for now
+        //require(msg.sender == questpost, "Sender is not Questpost!"); // callback from subscription -> questpost -> quest
         response = _response;
         err = _err;
-        return _requestId;
     }
 
     function settle() external {
         require(state == State.CLAIMED);
+        responseAsUint = abi.decode(response, (uint));
         if (block.timestamp > deadline) {
             owner.transfer(address(this).balance);
             qp.emitQuestFinished(
                     address(this),
                     owner,
                     target,
-                    reward,
-                    duration,
-                    source,
+                    questIndex,
                     quester,
                     deadline,
+                    responseAsUint,
                     "EXPIRED"
             );
             state = State.FINISHED;
         } else {
-            require(
-                keccak256(abi.encodePacked(bytes("COMPLETED"))) ==
-                    keccak256(abi.encodePacked(response)),
-                "Task incomplete"
-            );
+            require(responseAsUint > target, "Target not reached");
             quester.transfer(address(this).balance);
             qp.emitQuestFinished(
                     address(this),
                     owner,
                     target,
-                    reward,
-                    duration,
-                    source,
+                    questIndex,
                     quester,
                     deadline,
+                    responseAsUint,
                     "COMPLETED"
             );
             state == State.FINISHED;
