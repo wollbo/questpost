@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load filters %}
 <!-- 
     This is the main page of the platform showing existing quests to be claimed
     and button to create new quest
@@ -8,8 +9,46 @@
 
 {% block content %}
 <div class="quest-post">
-    {% for quest in quests %}
+    {% for quest in quests.quests %}
+    <div class="quest-info">
+        <p>Quest: {{ quest.address }}</p>
+        <p>Task: {{ quest.questIndex }} </p>
+        <p>Target: {{ quest.target }} </p>
+        <p>Duration: {{ quest.duration|seconds_to_days }} days </p>
+        <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
+    </div>
+    <div class="claim-button-wrapper">
+        <button class="claim-button" id="claim-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
+        data-address="{{ quest.address }}">Claim</button>
+    </div>
     {% endfor %}
 </div>
-{% for }
+<script>
+    const claimQuestBtns = document.getElementsByClassName("claim-button");
+    Array.from(claimQuestBtns).forEach(function (claimQuestBtn) {
+        claimQuestBtn.addEventListener("click", claimQuest);
+    });
+
+    async function claimQuest(event) {
+        const questPk = event.target.getAttribute("data-quest");
+
+        let jsonData;
+        await fetch("{% url 'web3:fetch_quest_abi' %}")
+            .then(response => response.json())
+            .then(data => jsonData = data)
+
+        console.log(jsonData);
+
+        const { ethereum } = window;
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner()
+        const questAddress = event.target.getAttribute("data-address")
+        const connectedContract = new ethers.Contract(questAddress, jsonData, signer)
+
+        let tx = await connectedContract.claim();
+        //after succesful signing, show new button/implore to move to contracts page
+    }
+
+</script>
+
 {% endblock %}
