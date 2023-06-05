@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 <!-- 
-    This page shows the users existing quests; given and taken.
-    Could perhaps be included as a modal to the quests page.
+    This page allows for the creation of quests 
 -->
 
 {% block title %} Profile {% endblock %}
@@ -12,16 +11,17 @@
         <p>Authenticated as {{ user }}</p>   
     </div>
     <div class="task-selection-container" style="margin-top: 20px;">
-        <select class="task-dropdown" name="task" id="tasks">
-            <option value="1">Twitter followers</option> <!-- Api follower of account -->
-            <option value="2">Google ranking</option> <!-- -->
-            <option value="3">Spotify popularity</option>
+        <select class="task-dropdown" name="task" id="tasks" onchange="updateTaskIndex()">
+            <option value="0">Spotify popularity</option> <!-- Api follower of account -->
+            <option value="1">Google ranking</option> <!-- -->
+            <option value="2">Twitter Followers</option>
         </select>
     </div>
     <div class="quest-form">
-        <input type="text" id="input-eth" value="Enter reward amount">
-        <input type="text" id="input-duration" value="Enter duration in days"> <!-- Change to calendar select -->
-        <input type="text" id="input-target" value="Enter target value"> <!-- Link this to task -->
+        <input type="text" id="input-eth" placeholder="Enter reward amount">
+        <input type="text" id="input-duration" placeholder="Enter duration in days"> <!-- Change to calendar select -->
+        <input type="text" id="input-target" placeholder="Enter target value"> <!-- Link this to task -->
+        <input type="text" id="input-args" placeholder="Enter arguments separated by comma"> <!--Make this conditional on task index -->
         <div class="new-quest-button-container">
             <button id="new-quest">New Quest</button>
         </div>
@@ -30,10 +30,10 @@
 {% endif %}
 <script>
 
-    const CONTRACT_ADDRESS = "0x8bf7A1E03f8EEAfe8D66467c82FDcc9b11860500" // change to from .env file 
+    const CONTRACT_ADDRESS = "0xA8094Dc8877925ff583a026b32e8Fa991267Fe65" // change to from .env file 
     const newQuestBtn = document.getElementById("new-quest")
 
-    let taskIndex;
+    let taskIndex = "0";
     function updateTaskIndex() {
         taskIndex = document.getElementById("tasks").value;
     }
@@ -56,6 +56,12 @@
         console.log(targetValue);
     }
 
+    let args;
+    function updateArgsValue() {
+        args = document.getElementById("input-args").value.split(',').map(arg => arg.trim());
+        console.log(args);
+    }
+
     async function createNewQuest(event) {
         let jsonData;
         await fetch("{% url 'web3:fetch_abi' %}")
@@ -70,15 +76,25 @@
         const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, jsonData, signer)
 
         var inWei = (parseFloat(rewardValue.replace(/,/g, '.')) * 10 ** 18).toString()
-        console.log(inWei)
+        var inDays = (parseFloat(durationValue.replace(/,/g, '.')) * 86400).toString()
 
-        let tx = await connectedContract.newQuest(targetValue, inWei, taskIndex, durationValue, { value: inWei });
+        let questParams = {
+            target: targetValue,
+            reward: inWei,
+            questIndex: taskIndex,
+            duration: inDays,
+            args: args
+        };
+        console.log(questParams)
+
+        let tx = await connectedContract.newQuest(questParams, { value: inWei });
 
     }
 
     document.getElementById("input-eth").oninput = updateRewardValue;
     document.getElementById("input-duration").oninput = updateDurationValue;
     document.getElementById("input-target").oninput = updateTargetValue;
+    document.getElementById("input-args").oninput = updateArgsValue;
     document.getElementById("new-quest").addEventListener("click", createNewQuest);
 </script>
 {% endblock %}

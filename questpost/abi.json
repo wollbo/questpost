@@ -5,6 +5,11 @@
 				"internalType": "address",
 				"name": "oracle",
 				"type": "address"
+			},
+			{
+				"internalType": "uint64",
+				"name": "_subscriptionId",
+				"type": "uint64"
 			}
 		],
 		"stateMutability": "nonpayable",
@@ -74,10 +79,16 @@
 				"type": "uint256"
 			},
 			{
-				"indexed": true,
-				"internalType": "string",
-				"name": "source",
-				"type": "string"
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "questIndex",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "string[]",
+				"name": "args",
+				"type": "string[]"
 			}
 		],
 		"name": "NewQuest",
@@ -151,20 +162,8 @@
 			{
 				"indexed": false,
 				"internalType": "uint256",
-				"name": "reward",
+				"name": "questIndex",
 				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "duration",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "source",
-				"type": "string"
 			},
 			{
 				"indexed": true,
@@ -206,20 +205,8 @@
 			{
 				"indexed": false,
 				"internalType": "uint256",
-				"name": "reward",
+				"name": "questIndex",
 				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "uint256",
-				"name": "duration",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"internalType": "string",
-				"name": "source",
-				"type": "string"
 			},
 			{
 				"indexed": true,
@@ -231,6 +218,12 @@
 				"indexed": false,
 				"internalType": "uint256",
 				"name": "deadline",
+				"type": "uint256"
+			},
+			{
+				"indexed": false,
+				"internalType": "uint256",
+				"name": "value",
 				"type": "uint256"
 			},
 			{
@@ -288,18 +281,8 @@
 			},
 			{
 				"internalType": "uint256",
-				"name": "_reward",
+				"name": "_questIndex",
 				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_duration",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "_source",
-				"type": "string"
 			},
 			{
 				"internalType": "address",
@@ -336,18 +319,8 @@
 			},
 			{
 				"internalType": "uint256",
-				"name": "_reward",
+				"name": "_questIndex",
 				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_duration",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "_source",
-				"type": "string"
 			},
 			{
 				"internalType": "address",
@@ -357,6 +330,11 @@
 			{
 				"internalType": "uint256",
 				"name": "_deadline",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_value",
 				"type": "uint256"
 			},
 			{
@@ -454,19 +432,9 @@
 				"type": "bytes"
 			},
 			{
-				"internalType": "enum Functions.Location",
-				"name": "secretsLocation",
-				"type": "uint8"
-			},
-			{
 				"internalType": "string[]",
 				"name": "args",
 				"type": "string[]"
-			},
-			{
-				"internalType": "uint64",
-				"name": "subscriptionId",
-				"type": "uint64"
 			},
 			{
 				"internalType": "uint32",
@@ -488,6 +456,44 @@
 	{
 		"inputs": [],
 		"name": "getDONPublicKey",
+		"outputs": [
+			{
+				"internalType": "bytes",
+				"name": "",
+				"type": "bytes"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_questIndex",
+				"type": "uint256"
+			}
+		],
+		"name": "getQuestDefinition",
+		"outputs": [
+			{
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_questIndex",
+				"type": "uint256"
+			}
+		],
+		"name": "getQuestSecret",
 		"outputs": [
 			{
 				"internalType": "bytes",
@@ -563,42 +569,41 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "_target",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_reward",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "_source",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_duration",
-				"type": "uint256"
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "target",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "reward",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "questIndex",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "duration",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string[]",
+						"name": "args",
+						"type": "string[]"
+					}
+				],
+				"internalType": "struct QuestParams",
+				"name": "params",
+				"type": "tuple"
 			}
 		],
 		"name": "newQuest",
 		"outputs": [],
 		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"name": "oraclePayment",
-		"outputs": [
-			{
-				"internalType": "uint256",
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -615,17 +620,28 @@
 		"type": "function"
 	},
 	{
-		"inputs": [],
-		"name": "renounceOwnership",
+		"inputs": [
+			{
+				"internalType": "string",
+				"name": "_questDefinition",
+				"type": "string"
+			},
+			{
+				"internalType": "bytes",
+				"name": "_secrets",
+				"type": "bytes"
+			}
+		],
+		"name": "registerNewQuest",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
 		"inputs": [],
-		"name": "swap",
+		"name": "renounceOwnership",
 		"outputs": [],
-		"stateMutability": "payable",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -644,12 +660,12 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "_newOraclePayment",
-				"type": "uint256"
+				"internalType": "uint64",
+				"name": "_newSubscriptionId",
+				"type": "uint64"
 			}
 		],
-		"name": "updateOraclePayment",
+		"name": "updateSubscriptionId",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"

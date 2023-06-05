@@ -23,17 +23,15 @@ def web3_auth(request: HttpRequest) -> HttpResponse:
 
 def profile(request: HttpRequest) -> HttpResponse:
     user = request.user.get_username()
-    quests = {}
     questgiver = {}
     if user:
         try:
-            quests = Quest.objects.filter(quester=user.lower()) # consider separating into active/completed quests
             questgiver = Quest.objects.filter(owner=user.lower()).distinct(
                 "address"
             )
         except Exception as e:
             print(e)
-    return render(request, "profile.html", {"quests": quests, "questgiver": questgiver})
+    return render(request, "profile.html", {"questgiver": questgiver})
 
 
 def quests(request: HttpRequest) -> HttpResponse:
@@ -44,6 +42,17 @@ def quests(request: HttpRequest) -> HttpResponse:
     except Exception as e:
         print(e)
     return render(request, "quests.html", {"quests": context})
+
+
+def questlog(request: HttpRequest) -> HttpResponse:
+    user = request.user.get_username()
+    context = {}
+    try:
+        quests = Quest.objects.filter(quester=user.lower())
+        context = {"valid": True, "quests": quests}
+    except Exception as e:
+        print(e)
+    return render(request, "questlog.html", {"quests": context})
 
 
 # view for receiving stream webhook data
@@ -74,16 +83,14 @@ def streams_handler(decoded_log: dict):
         raise ValueError("Invalid event!")
     else:
         if event == "NewQuest":
-            # add function to map source file to integer index
-            # decoded_log["source"]
-            source_index = 0
             entry = Quest(
                 address=decoded_log["quest"],
                 owner=decoded_log["owner"],
                 target=decoded_log["target"],
                 reward=decoded_log["reward"],
                 duration=decoded_log["duration"],
-                source=source_index,
+                questIndex=decoded_log["questIndex"],
+                args=decoded_log["args"],
                 active=False,
                 claimable=True
             )
@@ -96,7 +103,7 @@ def streams_handler(decoded_log: dict):
             )  
         elif event == "QuestFinished":
             Quest.objects.filter(address=decoded_log["quest"]).update(
-                active=False, status=decoded_log["status"]
+                active=False, value=decoded_log["value"], status=decoded_log["status"]
             )
         elif event == "OCRResponse":  # doesn't seem to emit anything
             pass

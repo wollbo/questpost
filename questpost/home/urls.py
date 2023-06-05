@@ -8,4 +8,5 @@ urlpatterns = [
     path("profile/", views.profile, name="profile"), # view my created quests and accepted quests
     path("streams", views.streams_reciever, name="streams_receiver"),
     path("quests/", views.quests, name="quests"),
+    path("questlog/", views.questlog, name="questlog"),
 ]

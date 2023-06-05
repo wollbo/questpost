@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% load filters %}
+
+<!-- 
+    This page shows the users active quests; given and taken
+-->
+
+{% block title %} Questlog {% endblock %}
+{% block content %}
+{% if request.user.is_authenticated %}
+<div class="quest-post">
+    {% for quest in quests.quests %}
+    <div class="quest-info">
+        <p>Quest: {{ quest.address }}</p>
+        <p>Task: {{ quest.questIndex }} </p>
+        <p>Target: {{ quest.target }} </p>
+        <p>Deadline: {{ quest.deadline|seconds_to_days }} </p> <!-- Map this to date in Python backend using datetime -->
+        <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
+        <p>Value: {{ quest.value }} </p>
+    </div>
+    <div class="fulfill-button-wrapper">
+        <button class="fulfill-button" id="fulfill-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
+        data-address="{{ quest.address }}", data-args="{{ quest.args }}">Fulfill</button>
+    </div>
+    <div class="complete-button-wrapper">
+        <button class="complete-button" id="complete-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
+        data-address="{{ quest.address }}">Complete</button>
+    </div>
+</div>
+
+    <script>
+        document.getElementById("fulfill-button-{{ quest.pk }}").addEventListener("click", executeRequest)
+        document.getElementById("complete-button-{{ quest.pk }}").addEventListener("click", settleQuest)
+
+        const CONTRACT_ADDRESS = "0xA8094Dc8877925ff583a026b32e8Fa991267Fe65" // change to from .env file 
+        async function executeRequest(event) {
+            let jsonData;
+            await fetch("{% url 'web3:fetch_abi' %}")
+                .then(response => response.json())
+                .then(data => jsonData = data)
+
+            const source = "var artistId = args[0]\nconst clientIdAndSecret = secrets.clientId + ':' + secrets.clientSecret\nconst base64Encoded = Buffer.from(clientIdAndSecret).toString('base64')\n\nconst oauthTokenResponse = await Functions.makeHttpRequest({\n    url: 'https://accounts.spotify.com/api/token',\n    method: 'POST',\n    headers: {\n        'Content-Type': 'application/x-www-form-urlencoded',\n        'Authorization': 'Basic ' + base64Encoded,\n    },\n    data: { \n        'grant_type': 'client_credentials', \n    }\n})\n\nif (!oauthTokenResponse.error) {\n    console.log(oauthTokenResponse.data.access_token)\n    const artistPopularityResponse = await Functions.makeHttpRequest({\n        url: `https://api.spotify.com/v1/artists/${artistId}`,\n        headers: {\n            'Authorization': `Bearer ${oauthTokenResponse.data['access_token']}`,\n            'Content-Type': 'application/json',\n        }\n    })\n    return Functions.encodeUint256(artistPopularityResponse.data['popularity'])\n}\nelse {\n    console.log('Oauth error!')\n    console.log(oauthTokenResponse)\n}\n"
+
+            const secrets = "0x6df9f26c74909c8901e0b9692546b5080308213db31557e6a23535be277ea37b48611cbec1140699fb820a45b3d3f43e39cf25524f98a7ad11aa1589287481f3f4630da988699bdcb02daf6e9abcfa1bd1152e7a66d128efc4fd4c40508fbe81af9a0adb96d6eea55fc3e06b1d7215c3ebfbcf918548911c99b668e670c2a6efebd58d007a739d3156a23215989ebb7cca1ba79e07687fef4789cd800b3c6b2c84"
+
+            const questAddress = event.target.getAttribute("data-address")
+            const args = JSON.parse(event.target.getAttribute("data-args").replace(/'/g, '"'));
+            const gasLimit = 280000
+            const requestGas = 1500000
+
+            console.log(args)
+
+            const { ethereum } = window;
+            const provider = new ethers.providers.Web3Provider(ethereum);
+            const signer = provider.getSigner()
+            const connectedContract = new ethers.Contract(CONTRACT_ADDRESS, jsonData, signer)
+            let tx = await connectedContract.executeRequest(questAddress, source, secrets, args, gasLimit, overrides = {
+                gasLimit: requestGas
+            });
+        }
+
+        async function settleQuest(event) {
+            let jsonData;
+            await fetch("{% url 'web3:fetch_quest_abi' %}")
+                .then(response => response.json())
+                .then(data => jsonData = data)
+
+            const { ethereum } = window;
+            const provider = new ethers.providers.Web3Provider(ethereum);
+            const signer = provider.getSigner()
+            const questAddress = event.target.getAttribute("data-address")
+            const connectedContract = new ethers.Contract(questAddress, jsonData, signer)
+
+            let tx = await connectedContract.settle();
+        }
+    </script>
+{% endfor %}
+{% endif %}
+{% endblock %}

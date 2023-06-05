@@ -1,5 +1,7 @@
 # Create your models here.
+from django.contrib.postgres.fields import ArrayField
 from django.db import models
+
 
 
 class Quest(models.Model):
@@ -9,6 +11,7 @@ class Quest(models.Model):
     reward = models.BigIntegerField(blank=False)
     duration = models.BigIntegerField(blank=False)
     questIndex = models.IntegerField(blank=False)
+    args = ArrayField(models.CharField(max_length=200), blank=True, default=list)
     quester = models.CharField(max_length=50)
     deadline = models.BigIntegerField(null=True)
     claimable = models.BooleanField(default=True) # if quest can be claimed
