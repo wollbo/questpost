@@ -9,7 +9,13 @@
 {% block content %}
 {% if request.user.is_authenticated %}
 <div class="quest-post">
-    {% for quest in quests.quests %}
+    <select id="quest-filter">
+        <option value="active" selected>Accepted</option>
+        <option value="finished">Finished</option>
+    </select>
+    <div id="active-quests">
+    <h2 class="contract-title">Accepted Quests</h2>
+    {% for quest in quests.active %}
     <div class="quest-info">
         <p>Quest: {{ quest.address }}</p>
         <p>Task: {{ quest.questIndex }} </p>
@@ -26,7 +32,6 @@
         <button class="complete-button" id="complete-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
         data-address="{{ quest.address }}">Complete</button>
     </div>
-</div>
 
     <script>
         document.getElementById("fulfill-button-{{ quest.pk }}").addEventListener("click", executeRequest)
@@ -74,6 +79,32 @@
             let tx = await connectedContract.settle();
         }
     </script>
-{% endfor %}
+    {% endfor %}
+    </div>
+    <div id="finished-quests" style="display: none;">
+    <h2 class="contract-title">Finished Quests</h2>
+    {% for quest in quests.finished %}
+        <div class="quest-info">
+            <p>Quest: {{ quest.address }}</p>
+            <p>Task: {{ quest.questIndex }} </p>
+            <p>Target: {{ quest.target }} </p>
+            <p>Deadline: {{ quest.deadline|seconds_to_days }} </p> <!-- Map this to date in Python backend using datetime -->
+            <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
+            <p>Value: {{ quest.value }} </p>
+            <p>Status: {{ quest.status }} </p>
+        </div>
+    {% endfor %}
+    </div>
+</div>
+<script>
+    document.getElementById('quest-filter').addEventListener('change', function() {
+        var type = this.value;
+        var activeQuests = document.getElementById('active-quests');
+        var finishedQuests = document.getElementById('finished-quests');
+
+        activeQuests.style.display = (type === 'active') ? '' : 'none';
+        finishedQuests.style.display = (type === 'finished') ? '' : 'none';
+    });
+</script>
 {% endif %}
 {% endblock %}

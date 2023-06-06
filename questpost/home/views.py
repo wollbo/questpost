@@ -23,15 +23,16 @@ def web3_auth(request: HttpRequest) -> HttpResponse:
 
 def profile(request: HttpRequest) -> HttpResponse:
     user = request.user.get_username()
-    questgiver = {}
+    context = {}
     if user:
         try:
-            questgiver = Quest.objects.filter(owner=user.lower()).distinct(
-                "address"
-            )
+            listed_quests = Quest.objects.filter(owner=user.lower(), active=False, claimable=True)
+            active_quests = Quest.objects.filter(owner=user.lower(), active=True)
+            finished_quests = Quest.objects.filter(owner=user.lower(), active=False, claimable=False)
+            context = {"valid": True, "listed": listed_quests, "active": active_quests, "finished": finished_quests}
         except Exception as e:
             print(e)
-    return render(request, "profile.html", {"questgiver": questgiver})
+    return render(request, "profile.html", {"quests": context})
 
 
 def quests(request: HttpRequest) -> HttpResponse:
@@ -48,8 +49,9 @@ def questlog(request: HttpRequest) -> HttpResponse:
     user = request.user.get_username()
     context = {}
     try:
-        quests = Quest.objects.filter(quester=user.lower())
-        context = {"valid": True, "quests": quests}
+        active_quests = Quest.objects.filter(quester=user.lower(), active=True)
+        finished_quests = Quest.objects.filter(quester=user.lower(), active=False)
+        context = {"valid": True, "active": active_quests, "finished": finished_quests}
     except Exception as e:
         print(e)
     return render(request, "questlog.html", {"quests": context})
@@ -111,3 +113,6 @@ def streams_handler(decoded_log: dict):
             print(decoded_log)
         elif event == "RequestFulfilled":  # part of FunctionsClient, emits request id
             print(decoded_log)
+
+        # add event "New Value: quest address + value" and update database
+        # add cancel function and event
