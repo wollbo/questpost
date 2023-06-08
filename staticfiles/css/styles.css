@@ -1,5 +1,6 @@
 body {
     font-family: Arial, sans-serif;
+    background-color: #f3d9ba;
 }
 
 header {
@@ -23,14 +24,15 @@ header {
 }
 
 .logo-title-link .logo {
-    height: 50px; /* Adjust based on your logo's dimensions */
-    width: 50px; /* Adjust based on your logo's dimensions */
-    margin-right: 10px;
+    height: 100px; /* Adjust based on your logo's dimensions */
+    width: 100px; /* Adjust based on your logo's dimensions */
+    margin-right: 0px;
+    margin-left: 10px;
 }
 
 .title {
     font-size: 48px;
-    color: #ffcc00;
+    color: #e9cc62;
     margin-left: 20px;
     font-family: 'Pacifico';
 
@@ -63,7 +65,7 @@ nav ul li {
 
 nav a {
     text-decoration: none;
-    color: #ffcc00;
+    color: #e9cc62;
     font-size: 16px;
     font-weight: bold;
 }
@@ -117,7 +119,7 @@ nav ul li a {
 .auth-button {
     background-color: #f0f0f0;
     border: none;
-    color: #ffcc00;
+    color: #e9cc62;
     text-align: center;
     text-decoration: none;
     font-size: 16px;
@@ -127,7 +129,7 @@ nav ul li a {
     cursor: pointer;
     display: inline;
     position: relative;
-    width: 100%
+    width: 100%;
 }
 
 .auth-button:hover {
@@ -155,15 +157,291 @@ button {
 
 .button-container {
     margin-left: auto;
+    margin-right: 10px;
 }
 
-.quest-creation-container,
+.quest-creation-container {
+    background-color: #f2f2f2; /* Light gray background */
+    padding: 20px; /* Add some padding to make it look nicer */
+    border-radius: 10px; /* Optional: add rounded corners */
+    margin-bottom: 20px; /* Space between this div and the next content */
+    max-width: 500px;
+    margin: 20px auto 0;
+}
 .quest-post {
     margin: 20px;
 }
 
 .quest-info {
     border: 1px solid #004d40;
+    background-color: #f0f0f0;
     padding: 20px;
     margin-bottom: 20px;
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* This will give a shadow to the box to create a card effect */
+    max-width: 300px; /* or set it to whatever maximum width you prefer */
+    margin: 10px auto 10px;
+    text-align: center;
+    font-family: arial;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-direction: column;
+}
+
+.quest-data {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.quest-data p {
+    margin: 0.5em 0;  /* adjust as needed */
+}
+
+.claim-button-wrapper {
+    padding-top: 5px;
+    margin-top: 5px;
+}
+
+/* Claim Button */
+.claim-button {
+    background-color: #fc9e2d;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+.quest-image {
+    width: 20%; /* This will make the image take the full width of its parent container */
+    margin: auto;
+    display: block;
+    height: auto; /* This will maintain the image's aspect ratio */
+}
+
+/* This will resize the image to 50px by 50px. Adjust these values as necessary */
+.search-icon {
+    width: 50px;
+    height: 50px;
+}
+
+/* This will style the form to display the dropdown and the button next to each other */
+form.search-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Styles for the dropdown select element */
+.search-form select {
+    margin: 0;             /* Remove the margin */
+    padding: 10px;         /* Add padding to match the image size */
+    font-size: 1em;        /* Adjust the font size inside the dropdown */
+    border: 2px solid #004d40; /* Add a green border */
+    border-radius: 0;      /* Remove the rounded corners */
+    background-color: #ffffff; /* Change the background color to white */
+    color: #000000;        /* Change the text color to black */
+    height: 50px;          /* Match the height to the button size */
+}
+
+/* Remove the default button styling and add some to match the select */
+.search-form button {
+    margin: 0;             /* Remove the margin */
+    padding: 0;            /* Remove the padding */
+    background: #004d40;   /* Set the background color to green */
+    border: none;          /* Remove the border */
+    height: 50px;          /* Match the height to the select element */
+}
+
+/* Style the image to match the select element */
+.search-form img {
+    padding: 10px;         /* Add some padding to make the image smaller */
+    height: 30px;          /* Adjust height to fit within the button */
+    width: 30px;           /* Adjust width to fit within the button */
+    vertical-align: middle;/* Align the image vertically in the middle */
+}
+
+/* Styles for the welcome section */
+.welcome-section {
+    background-color: #f0f0f0; /* A light gray background */
+    padding: 20px; /* Some padding for space */
+    text-align: center; /* Center the text */
+}
+
+/* Styles for the search section */
+.search-section {
+    background-color: #e0e0e0; /* A slightly darker gray */
+    padding: 20px; /* Some padding for space */
+    text-align: center; /* Center the search bar */
+}
+
+/* Styles for the quest descriptions section */
+.quest-descriptions {
+    padding: 20px; /* Some padding for space */
+}
+
+/* Styles for the individual quest descriptions */
+.quest-description {
+    margin-bottom: 20px; /* Some margin for space between quests */
+}
+
+/* Specific styles for the Spotify Popularity quest */
+#spotify-popularity-quest {
+    background-color: #1db954; /* Spotify green */
+    color: #ffffff; /* White text for contrast */
+    padding: 20px; /* Some padding for space */
+}
+
+/* Quest Filter */
+#quest-filter {
+    background-color: #004d40;
+    color: #ffffff;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+#quest-filter:focus {
+    outline: none;
+}
+
+/* Contract title */
+.contract-title {
+    font-size: 24px;
+    color: #004d40;
+    font-weight: bold;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+/* Fulfill Button */
+.fulfill-button {
+    background-color: #ffffff;
+    color: #4c63af;
+    border: 2px solid #4c63af;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.fulfill-button:hover {
+    background-color: #f8f8f8;
+}
+
+/* Complete Button */
+.complete-button {
+    background-color: #4c63af;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.complete-button:hover {
+    background-color: #3f5292;
+}
+
+.wrapper {
+    padding: 20px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    width: 80%; /* Adjust this value based on how wide you want the wrapper */
+}
+
+
+.dropdown-container {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.copy:hover {
+    cursor: pointer;
+    color: blue;  /* Change the color of the emoji when hovered */
+}
+
+.quest-form {
+    display: flex; /* This will make the child elements to sit in a row */
+    flex-direction: column; /* This will stack the child elements vertically */
+    gap: 10px; /* This will add space between the child elements */
+}
+
+.new-quest-button-container {
+    display: flex; /* Aligns the button to the center */
+    justify-content: center;
+}
+
+#new-quest {
+    background-color: #00FF00; /* Bright green background */
+    color: #ffffff; /* White text */
+    padding: 10px 20px; /* Add some padding to make the button larger */
+    border: none; /* Remove the default button border */
+    border-radius: 4px; /* Optional: add rounded corners to the button */
+    cursor: pointer; /* Changes the cursor when you hover over the button */
+    font-size: 16px; /* Increase the font size */
+}
+
+#new-quest:hover {
+    background-color: #00CC00; /* Slightly darker green for hover effect */
+}
+
+.task-selection-container {
+    display: flex; /* Make it a flex container */
+    justify-content: center; /* Center children along the horizontal axis */
+    margin-bottom: 10px; /* Add some space below the container */
+    margin-top: 10px;
+}
+
+/* Updated styles for the task dropdown */
+.task-dropdown {
+    padding: 10px; /* Add padding to match the image size */
+    font-size: 1em; /* Adjust the font size inside the dropdown */
+    border: 2px solid #004d40; /* Add a green border */
+    border-radius: 0; /* Remove the rounded corners */
+    background-color: #ffffff; /* Change the background color to white */
+    color: #000000; /* Change the text color to black */
+    height: 50px;
+    width: 83%; /* Make the dropdown full width */
+    margin: 0 auto ; /* Remove the margin */
+}
+
+/* New styles for input fields */
+.quest-form input {
+    height: 35px; /* Increase height */
+    padding: 5px; /* Add some padding */
+    border: 1px solid #ccc; /* Add a border */
+    border-radius: 4px; /* Add some border radius */
+    width: 80%; /* Reduce the width */
+    margin: 0 auto; /* Center the input fields */
+}
+
+.fulfill-button-container {
+    gap: 20px;
+    display: flex;
+    justify-content: center;
+    margin-top: 5px;
+}
+
+/* Cancel Button */
+.cancel-button {
+    background-color: #bb1414;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.cancel-button:hover {
+    background-color: #991111;
 }
