@@ -30,7 +30,7 @@ SECRET_KEY = "django-insecure-4tgsw0tv=stw5bs=v6)xkt!6-&%3+*!r6827=19aihk^4m^u(r
 DEBUG = True
 
 ALLOWED_HOSTS: list[str] = [
-    ".ondigitalocean.app"
+    ".ondigitalocean.app",
     "127.0.0.1",
     "localhost",
     "questpost.xyz",
