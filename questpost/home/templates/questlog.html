@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load filters %}
+{% load static %}
+
 
 <!-- 
     This page shows the users active quests; given and taken
@@ -9,35 +11,46 @@
 {% block content %}
 {% if request.user.is_authenticated %}
 <div class="quest-post">
-    <select id="quest-filter">
-        <option value="active" selected>Accepted</option>
-        <option value="finished">Finished</option>
-    </select>
+    <div class="dropdown-container">
+        <select id="quest-filter">
+            <option value="active" selected>Accepted</option>
+            <option value="finished">Finished</option>
+        </select>
+    </div>
     <div id="active-quests">
     <h2 class="contract-title">Accepted Quests</h2>
     {% for quest in quests.active %}
     <div class="quest-info">
-        <p>Quest: {{ quest.address }}</p>
-        <p>Task: {{ quest.questIndex }} </p>
-        <p>Target: {{ quest.target }} </p>
-        <p>Deadline: {{ quest.deadline|seconds_to_days }} </p> <!-- Map this to date in Python backend using datetime -->
-        <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
-        <p>Value: {{ quest.value }} </p>
+        <div class="quest-data">
+            <img src="{% static 'images/quest' %}{{ quest.questIndex }}.png" alt="Quest image" class="quest-image">
+            <p>Quest: {{ quest.address|short_address }} <span class="copy" onclick="copyAddress('{{ quest.address }}')">&#128203;</span></p>
+            <p>Task: {{ quest.questIndex|quest_map }} </p>
+            <p>{{ quest.args|args_display:quest.questIndex }}</p>
+            <p>Target: {{ quest.target }} </p>
+            <p>Deadline: {{ quest.deadline|timestamp_to_date }} </p> <!-- Map this to date in Python backend using datetime -->
+            <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
+            <p>Value: {{ quest.value }} </p>
+            <p>Status: {{ quest.status }} </p>
+        </div>
+        <div class="fulfill-button-container">
+            <div class="fulfill-button-wrapper">
+                <button class="fulfill-button" id="fulfill-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
+                data-address="{{ quest.address }}", data-args="{{ quest.args }}">Fulfill</button>
+            </div>
+            <div class="fulfill-button-wrapper">
+                <button class="complete-button" id="complete-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
+                data-address="{{ quest.address }}">Settle</button>
+            </div>
+        </div>
     </div>
-    <div class="fulfill-button-wrapper">
-        <button class="fulfill-button" id="fulfill-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
-        data-address="{{ quest.address }}", data-args="{{ quest.args }}">Fulfill</button>
-    </div>
-    <div class="complete-button-wrapper">
-        <button class="complete-button" id="complete-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
-        data-address="{{ quest.address }}">Complete</button>
-    </div>
+
 
     <script>
         document.getElementById("fulfill-button-{{ quest.pk }}").addEventListener("click", executeRequest)
         document.getElementById("complete-button-{{ quest.pk }}").addEventListener("click", settleQuest)
 
-        const CONTRACT_ADDRESS = "0xA8094Dc8877925ff583a026b32e8Fa991267Fe65" // change to from .env file 
+        const CONTRACT_ADDRESS = "{{ address }}"
+        console.log(CONTRACT_ADDRESS)
         async function executeRequest(event) {
             let jsonData;
             await fetch("{% url 'web3:fetch_abi' %}")
@@ -84,15 +97,19 @@
     <div id="finished-quests" style="display: none;">
     <h2 class="contract-title">Finished Quests</h2>
     {% for quest in quests.finished %}
-        <div class="quest-info">
-            <p>Quest: {{ quest.address }}</p>
-            <p>Task: {{ quest.questIndex }} </p>
+    <div class="quest-info">
+        <div class="quest-data">
+            <img src="{% static 'images/quest' %}{{ quest.questIndex }}.png" alt="Quest image" class="quest-image">
+            <p>Quest: {{ quest.address|short_address }} <span class="copy" onclick="copyAddress('{{ quest.address }}')">&#128203;</span></p>
+            <p>Task: {{ quest.questIndex|quest_map }} </p>
+            <p>{{ quest.args|args_display:quest.questIndex }}</p>
             <p>Target: {{ quest.target }} </p>
-            <p>Deadline: {{ quest.deadline|seconds_to_days }} </p> <!-- Map this to date in Python backend using datetime -->
+            <p>Deadline: {{ quest.deadline|timestamp_to_date }} </p> <!-- Map this to date in Python backend using datetime -->
             <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
             <p>Value: {{ quest.value }} </p>
             <p>Status: {{ quest.status }} </p>
         </div>
+    </div>
     {% endfor %}
     </div>
 </div>
@@ -105,6 +122,14 @@
         activeQuests.style.display = (type === 'active') ? '' : 'none';
         finishedQuests.style.display = (type === 'finished') ? '' : 'none';
     });
+
+    function copyAddress(address) {
+        navigator.clipboard.writeText(address).then(function() {
+            /* clipboard successfully set */
+        }, function() {
+            /* clipboard write failed */
+        });
+    }
 </script>
 {% endif %}
 {% endblock %}

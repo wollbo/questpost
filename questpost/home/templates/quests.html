@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load filters %}
+{% load static %}
 <!-- 
     This is the main page of the platform showing existing quests to be claimed
     and button to create new quest
@@ -8,22 +9,52 @@
 {% block title %} Quests {% endblock %}
 
 {% block content %}
-<div class="quest-post">
-    {% for quest in quests.quests %}
-    <div class="quest-info">
-        <p>Quest: {{ quest.address }}</p>
-        <p>Task: {{ quest.questIndex }} </p>
-        <p>Target: {{ quest.target }} </p>
-        <p>Duration: {{ quest.duration|seconds_to_days }} days </p>
-        <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
+<section class="search-section">
+    <div class="search-form">
+        <select name="quest_index" id="quest-dropdown">
+            <option value="all">All</option>
+            <option value="0">Spotify Popularity</option>
+            <!-- Add more options as necessary -->
+        </select>
     </div>
-    <div class="claim-button-wrapper">
-        <button class="claim-button" id="claim-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
-        data-address="{{ quest.address }}">Claim</button>
-    </div>
-    {% endfor %}
 </div>
+<div class="quest-post">
+    {% for quest in quests %}
+        <div class="quest-info" data-quest-index="{{ quest.questIndex }}">
+            <div class="quest-data">
+                <img src="{% static 'images/quest' %}{{ quest.questIndex }}.png" alt="Quest image" class="quest-image">
+                <p>Quest: {{ quest.address|short_address }} <span class="copy" onclick="copyAddress('{{ quest.address }}')">&#128203;</span></p>
+                <p>Task: {{ quest.questIndex|quest_map }} </p>
+                <p>{{ quest.args|args_display:quest.questIndex }}</p>
+                <p>Value: {{quest.value}} </p>
+                <p>Target: {{ quest.target }} </p>
+                <p>Duration: {{ quest.duration|seconds_to_days }} days </p>
+                <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
+            </div>
+            <div class="claim-button-wrapper">
+                <button class="claim-button" id="claim-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
+                data-address="{{ quest.address }}">Claim</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
 <script>
+    document.getElementById("quest-dropdown").addEventListener("change", function () {
+        const selectedQuestIndex = this.value;
+        const questCards = document.querySelectorAll(".quest-info");
+
+        questCards.forEach(function (questCard) {
+            const questIndex = questCard.getAttribute("data-quest-index");
+            if (selectedQuestIndex === "all" || questIndex === selectedQuestIndex) {
+                questCard.style.display = "block";
+            } else {
+                questCard.style.display = "none";
+            }
+        });
+    });
+
     const claimQuestBtns = document.getElementsByClassName("claim-button");
     Array.from(claimQuestBtns).forEach(function (claimQuestBtn) {
         claimQuestBtn.addEventListener("click", claimQuest);
@@ -47,6 +78,14 @@
 
         let tx = await connectedContract.claim();
         //after succesful signing, show new button/implore to move to questlog page
+    }
+
+    function copyAddress(address) {
+        navigator.clipboard.writeText(address).then(function() {
+            /* clipboard successfully set */
+        }, function() {
+            /* clipboard write failed */
+        });
     }
 
 </script>

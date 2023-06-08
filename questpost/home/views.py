@@ -1,5 +1,8 @@
 import json
 import logging
+import os
+
+from dotenv import load_dotenv
 
 from django.core.exceptions import BadRequest
 from django.db.models import F
@@ -9,9 +12,15 @@ from django.shortcuts import render
 from .decode import decode_log
 from .models import Quest
 
+
+
 # Create your views here.
 logger = logging.getLogger(__name__)
 
+load_dotenv()
+
+
+CONTRACT_ADDRESS = os.environ.get('CONTRACT_ADDRESS') 
 
 def hero(request: HttpRequest) -> HttpResponse:
     return render(request, "hero.html", {})
@@ -32,17 +41,22 @@ def profile(request: HttpRequest) -> HttpResponse:
             context = {"valid": True, "listed": listed_quests, "active": active_quests, "finished": finished_quests}
         except Exception as e:
             print(e)
-    return render(request, "profile.html", {"quests": context})
+            context = {"valid": False, "error": str(e)}
+    return render(request, "profile.html", {"quests": context, "address": CONTRACT_ADDRESS})
 
 
 def quests(request: HttpRequest) -> HttpResponse:
+    NUM_QUEST_INDICES = 1
     context = {}
     try:
         quests = Quest.objects.filter(claimable=True, active=False).distinct("address")
-        context = {"valid": True, "quests": quests}
+        quest_indices = [str(index) for index in range(NUM_QUEST_INDICES)]  # Adjust NUM_QUEST_INDICES to match the total number of quest indices
+        selected_quest_index = request.GET.get('quest_index')
+        context = {"valid": True, "quests": quests, "quest_indices": quest_indices, "selected_quest_index": selected_quest_index, "address": CONTRACT_ADDRESS}
     except Exception as e:
         print(e)
-    return render(request, "quests.html", {"quests": context})
+        context = {"valid": False, "error": str(e), "address": CONTRACT_ADDRESS}
+    return render(request, "quests.html", context)
 
 
 def questlog(request: HttpRequest) -> HttpResponse:
@@ -54,7 +68,8 @@ def questlog(request: HttpRequest) -> HttpResponse:
         context = {"valid": True, "active": active_quests, "finished": finished_quests}
     except Exception as e:
         print(e)
-    return render(request, "questlog.html", {"quests": context})
+        context = {"valid": False, "error": str(e), }
+    return render(request, "questlog.html", {"quests": context, "address": CONTRACT_ADDRESS})
 
 
 # view for receiving stream webhook data
@@ -105,7 +120,7 @@ def streams_handler(decoded_log: dict):
             )  
         elif event == "QuestFinished":
             Quest.objects.filter(address=decoded_log["quest"]).update(
-                active=False, value=decoded_log["value"], status=decoded_log["status"]
+                claimable=False, active=False, value=decoded_log["value"], status=decoded_log["status"] # claimable=False covers "Cancelled" status
             )
         elif event == "OCRResponse":  # doesn't seem to emit anything
             pass

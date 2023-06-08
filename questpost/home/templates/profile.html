@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% load filters %}
+{% load static %}
+
 <!-- 
     This page allows for the creation of quests, and showing issued quests
 -->
@@ -8,15 +10,15 @@
 {% block content %}
 {% if request.user.is_authenticated %}
 <div class="quest-creation-container">
-    <div class="task-selection-container" style="margin-top: 20px;">
+    <div class="task-selection-container">
         <select class="task-dropdown" name="task" id="tasks" onchange="updateTaskIndex()">
-            <option value="0">Spotify popularity</option> <!-- Api follower of account -->
-            <option value="1">Google ranking</option> <!-- -->
+            <option value="0">Spotify Popularity</option> <!-- Api follower of account -->
+            <option value="1">Google Ranking</option> <!-- -->
             <option value="2">Twitter Followers</option>
         </select>
     </div>
     <div class="quest-form">
-        <input type="text" id="input-eth" placeholder="Enter reward amount">
+        <input type="text" id="input-eth" placeholder="Enter reward amount in ETH">
         <input type="text" id="input-duration" placeholder="Enter duration in days"> <!-- Change to calendar select -->
         <input type="text" id="input-target" placeholder="Enter target value"> <!-- Link this to task -->
         <input type="text" id="input-args" placeholder="Enter arguments separated by comma"> <!--Make this conditional on task index -->
@@ -26,50 +28,87 @@
     </div>
 </div>
 <div class="quest-post">
-    <select id="quest-filter">
-        <option value="active" selected>Accepted</option>
-        <option value="listed">Listed</option>
-        <option value="finished">Finished</option>
-    </select>
+    <div class="dropdown-container">
+        <select id="quest-filter">
+            <option value="active" selected>Accepted</option>
+            <option value="listed">Listed</option>
+            <option value="finished">Finished</option>
+        </select>
+    </div>
     <div id="active-quests">
     <h2 class="contract-title">Accepted Quests</h2>
     {% for quest in quests.active %}
     <div class="quest-info">
-        <p>Quest: {{ quest.address }}</p>
-        <p>Task: {{ quest.questIndex }} </p>
-        <p>Target: {{ quest.target }} </p>
-        <p>Deadline: {{ quest.deadline|seconds_to_days }} </p> <!-- Map this to date in Python backend using datetime -->
-        <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
-        <p>Value: {{ quest.value }} </p>
+        <div class="quest-data">
+            <img src="{% static 'images/quest' %}{{ quest.questIndex }}.png" alt="Quest image" class="quest-image">
+            <p>Quest: {{ quest.address|short_address }} <span class="copy" onclick="copyAddress('{{ quest.address }}')">&#128203;</span></p>
+            <p>Task: {{ quest.questIndex|quest_map }} </p>
+            <p>{{ quest.args|args_display:quest.questIndex }}</p>
+            <p>Target: {{ quest.target }} </p>
+            <p>Deadline: {{ quest.deadline|timestamp_to_date }} </p> 
+            <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
+            <p>Value: {{ quest.value }} </p>
+        </div>
+        <div class="fulfill-button-wrapper">
+            <button class="complete-button" id="complete-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
+            data-address="{{ quest.address }}">Settle</button>
+        </div>
     </div>
     {% endfor %}
     </div>
     <div id="listed-quests" style="display: none;">
     <h2 class="contract-title">Listed Quests</h2>
     {% for quest in quests.listed %}
-        <div class="quest-info">
-            <p>Quest: {{ quest.address }}</p>
-            <p>Task: {{ quest.questIndex }} </p>
+    <div class="quest-info">
+        <div class="quest-data">
+            <img src="{% static 'images/quest' %}{{ quest.questIndex }}.png" alt="Quest image" class="quest-image">
+            <p>Quest: {{ quest.address|short_address }} <span class="copy" onclick="copyAddress('{{ quest.address }}')">&#128203;</span></p>
+            <p>Task: {{ quest.questIndex|quest_map }} </p>
+            <p>{{ quest.args|args_display:quest.questIndex }}</p>
             <p>Target: {{ quest.target }} </p>
-            <p>Deadline: {{ quest.deadline|seconds_to_days }} </p> <!-- Map this to date in Python backend using datetime -->
+            <p>Duration: {{ quest.duration|seconds_to_days }} days </p> 
             <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
-            <p>Value: {{ quest.value }} </p>
-            <p>Status: {{ quest.status }} </p>
         </div>
+        <div class="fulfill-button-wrapper">
+            <button class="cancel-button" id="cancel-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
+            data-address="{{ quest.address }}">Cancel</button>
+            <script>
+                document.getElementById("cancel-button-{{ quest.pk }}").addEventListener("click", async function(event) {
+                    let jsonData;
+                    await fetch("{% url 'web3:fetch_quest_abi' %}")
+                        .then(response => response.json())
+                        .then(data => jsonData = data)
+    
+                    const { ethereum } = window;
+                    const provider = new ethers.providers.Web3Provider(ethereum);
+                    const signer = provider.getSigner()
+                    const questAddress = event.target.getAttribute("data-address")
+                    const connectedContract = new ethers.Contract(questAddress, jsonData, signer)
+    
+                    let tx = await connectedContract.cancel();
+                });
+            </script>
+        </div>
+    </div>
     {% endfor %}
     </div>
     <div id="finished-quests" style="display: none;">
     <h2 class="contract-title">Finished Quests</h2>
     {% for quest in quests.finished %}
-        <div class="quest-info">
-            <p>Quest: {{ quest.address }}</p>
-            <p>Task: {{ quest.questIndex }} </p>
+    <div class="quest-info">
+        <div class="quest-data">
+            <img src="{% static 'images/quest' %}{{ quest.questIndex }}.png" alt="Quest image" class="quest-image">
+            <p>Quest: {{ quest.address|short_address }} <span class="copy" onclick="copyAddress('{{ quest.address }}')">&#128203;</span></p>
+            <p>Task: {{ quest.questIndex|quest_map }} </p>
+            <p>{{ quest.args|args_display:quest.questIndex }}</p>
             <p>Target: {{ quest.target }} </p>
-            <p>Deadline: {{ quest.deadline|seconds_to_days }} </p> <!-- Map this to date in Python backend using datetime -->
+            <p>Deadline: {{ quest.deadline|timestamp_to_date }} </p>
             <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
             <p>Value: {{ quest.value }} </p>
             <p>Status: {{ quest.status }} </p>
         </div>
+    </div>
+
     {% endfor %}
     </div>
 </div>
@@ -88,7 +127,8 @@
         finishedQuests.style.display = (type === 'finished') ? '' : 'none';
     });
 
-    const CONTRACT_ADDRESS = "0xA8094Dc8877925ff583a026b32e8Fa991267Fe65" // change to from .env file 
+    const CONTRACT_ADDRESS = "{{ address }}"
+    console.log(CONTRACT_ADDRESS)
     const newQuestBtn = document.getElementById("new-quest")
 
     let questIndex 

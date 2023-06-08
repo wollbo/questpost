@@ -2,7 +2,7 @@ body {
     font-family: Arial, sans-serif;
 }
 
-.header {
+header {
     display: flex;
     background-color: #004d40;
     padding: 10px 0;
@@ -32,7 +32,7 @@ body {
     font-size: 48px;
     color: #ffcc00;
     margin-left: 20px;
-    font-family: 'Lexend Exa', cursive;
+    font-family: 'Pacifico';
 
 }
 .logo-title-link {

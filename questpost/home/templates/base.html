@@ -5,15 +5,35 @@
 <script src="{% static 'eth-crypto-bundle.js' %}"></script>
 -->
 
+<!DOCTYPE html>
+<html lang="en">
+<!-- trying to import eth-crypto
+{% load static %}
+<script src="{% static 'eth-crypto-bundle.js' %}"></script>
+-->
+
 <head>
-    <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}" />
-    <link href="https://fonts.googleapis.com/css?family=Lexend+Exa&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}" />
+    <link href="https://fonts.googleapis.com/css?family=Pacifico&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+
+    {% block head %}
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} {% endblock %}</title>
+    {% endblock %}
+</head>
+
+<body>
     <header>
         <div class="logo-title-container">
             <a href="/" class="logo-title-link">
-                <img src="{% static 'logo.png' %}" alt="Logo" class="logo">
-                <span class="title">questpost.xyz</span>
+                <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
+                <span class="title">QuestPost</span>
             </a>
         </div>
         <nav>
@@ -34,9 +54,6 @@
             {% endif %}
         </nav>
     </header>
-
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
 
     <div class="connection-status">
         {% if user.is_authenticated %}
@@ -124,16 +141,6 @@
     </script>
     {% endif %}
 
-    {% block head %}
-
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %} {% endblock %}</title>
-    {% endblock %}
-</head>
-
-<body>
     <div id="content">
         {% block content %}{% endblock %}
     </div>

@@ -2,28 +2,60 @@
 	{
 		"inputs": [
 			{
-				"internalType": "uint256",
-				"name": "_target",
-				"type": "uint256"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_reward",
-				"type": "uint256"
-			},
-			{
-				"internalType": "string",
-				"name": "_source",
-				"type": "string"
-			},
-			{
-				"internalType": "uint256",
-				"name": "_duration",
-				"type": "uint256"
+				"components": [
+					{
+						"internalType": "uint256",
+						"name": "target",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "reward",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "questIndex",
+						"type": "uint256"
+					},
+					{
+						"internalType": "uint256",
+						"name": "duration",
+						"type": "uint256"
+					},
+					{
+						"internalType": "string[]",
+						"name": "args",
+						"type": "string[]"
+					}
+				],
+				"internalType": "struct QuestParams",
+				"name": "params",
+				"type": "tuple"
 			}
 		],
 		"stateMutability": "payable",
 		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint32",
+				"name": "gasLimit",
+				"type": "uint32"
+			}
+		],
+		"name": "callFulfillmentStatus",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "cancel",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
 	},
 	{
 		"inputs": [],
@@ -34,11 +66,6 @@
 	},
 	{
 		"inputs": [
-			{
-				"internalType": "bytes32",
-				"name": "_requestId",
-				"type": "bytes32"
-			},
 			{
 				"internalType": "bytes",
 				"name": "_response",
@@ -51,13 +78,7 @@
 			}
 		],
 		"name": "receiveFulfillmentStatus",
-		"outputs": [
-			{
-				"internalType": "bytes32",
-				"name": "",
-				"type": "bytes32"
-			}
-		],
+		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
 	},

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 <!-- 
     The base landing page of questpost.xyz; This should showcase the available quests and invite
     the user to either browse for existing quests or list their own.
@@ -6,4 +7,38 @@
 
 {% block title %} Home {% endblock %}
 {% block content %}
+
+<!-- Section for the welcome message -->
+<section class="welcome-section">
+    <h2>Welcome to QuestPost!</h2>
+    <p>Use the search bar below to browse available quests</p>
+</section>
+
+<!-- Section for the search bar -->
+<section class="search-section">
+    <form action="{% url 'quests' %}" method="get" class="search-form">
+        <select name="quest_index">
+            <option value="all">All</option>
+            <option value="0">Spotify Popularity</option>
+            <!-- Add more options as necessary -->
+        </select>
+        <button type="submit">
+            <img src="{% static 'images/search-icon.png' %}" alt="Search" class="search-icon">
+        </button>
+    </form>
+</section>
+
+<!-- Section for quest descriptions -->
+<section class="quest-descriptions">
+    <!-- Spotify Popularity Quest -->
+    <div class="quest-description" id="spotify-popularity-quest">
+        <h3>Spotify Popularity Quest</h3>
+        <p>
+            In this quest, improve an artist's ranking on Spotify. If you reach the threshold set in the contract, 
+            you'll receive payment in Ether.
+        </p>
+    </div>
+    <!-- More quests go here -->
+</section>
+
 {% endblock %}
