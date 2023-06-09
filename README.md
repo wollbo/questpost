@@ -1,6 +1,10 @@
-# QuestPost
-
+## QuestPost
 QuestPost is a platform that connects task completion to verifiable APIs and smart contracts, creating a censorship-resistant and trust-minimized way for individuals to complete tasks for money. By reducing the friction and disputes traditionally associated with tasks such as digital marketing or search engine optimization, QuestPost offers a unique approach to earning money online.
+
+
+
+![questpost logo](questpost/home/static/images/android-chrome-512x512.png)
+
 ## Table of Contents
 
     -Installation
