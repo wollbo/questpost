@@ -7,10 +7,10 @@ QuestPost is a platform that connects task completion to verifiable APIs and sma
 
 ## Table of Contents
 
--Installation
--Usage
--Contributing
--License
+- Installation
+- Usage
+- Contributing
+- License
 
 ### Installation
 The project dependencies are defined in pyproject.toml. Create a new virtual environment standing at the root of the repository using 
