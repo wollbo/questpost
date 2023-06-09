@@ -51,4 +51,4 @@ A live deployment of the platform is available at [questpost.xyz](https://www.qu
 
 ### License
 
-GPL-3.0
+MIT
