@@ -317,7 +317,7 @@ form.search-form {
 
 .quest-img {
     width: 50%;     /* adjust as necessary */
-    max-width: 600px;
+    max-width: 800px;
     height: auto;   /* maintain aspect ratio */
 }
 
