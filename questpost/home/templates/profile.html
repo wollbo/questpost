@@ -13,8 +13,8 @@
     <div class="task-selection-container">
         <select class="task-dropdown" name="task" id="tasks" onchange="updateTaskIndex()">
             <option value="0">Spotify Popularity</option> <!-- Api follower of account -->
-            <option value="1">Google Ranking</option> <!-- -->
-            <option value="2">Twitter Followers</option>
+            <option value="1">Youtube Subscribers</option> <!-- Add logos -->
+            <option value="2">Open PageRank</option>
         </select>
     </div>
     <div class="quest-form">
@@ -44,7 +44,7 @@
             <p>Quest: {{ quest.address|short_address }} <span class="copy" onclick="copyAddress('{{ quest.address }}')">&#128203;</span></p>
             <p>Task: {{ quest.questIndex|quest_map }} </p>
             <p>{{ quest.args|args_display:quest.questIndex }}</p>
-            <p>Target: {{ quest.target }} </p>
+            <p>Target: {{ quest.target|filter_target:quest.questIndex }} </p>
             <p>Deadline: {{ quest.deadline|timestamp_to_date }} </p> 
             <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
             <p>Value: {{ quest.value }} </p>
@@ -65,7 +65,7 @@
             <p>Quest: {{ quest.address|short_address }} <span class="copy" onclick="copyAddress('{{ quest.address }}')">&#128203;</span></p>
             <p>Task: {{ quest.questIndex|quest_map }} </p>
             <p>{{ quest.args|args_display:quest.questIndex }}</p>
-            <p>Target: {{ quest.target }} </p>
+            <p>Target: {{ quest.target|filter_target:quest.questIndex }} </p>
             <p>Duration: {{ quest.duration|seconds_to_days }} days </p> 
             <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
         </div>
@@ -101,7 +101,7 @@
             <p>Quest: {{ quest.address|short_address }} <span class="copy" onclick="copyAddress('{{ quest.address }}')">&#128203;</span></p>
             <p>Task: {{ quest.questIndex|quest_map }} </p>
             <p>{{ quest.args|args_display:quest.questIndex }}</p>
-            <p>Target: {{ quest.target }} </p>
+            <p>Target: {{ quest.target|filter_target:quest.questIndex }} </p>
             <p>Deadline: {{ quest.deadline|timestamp_to_date }} </p>
             <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
             <p>Value: {{ quest.value }} </p>
@@ -176,6 +176,11 @@
 
         var inWei = (parseFloat(rewardValue.replace(/,/g, '.')) * 10 ** 18).toString()
         var inDays = (parseFloat(durationValue.replace(/,/g, '.')) * 86400).toString()
+
+        // If the taskIndex is 2, multiply the targetValue by 100
+        if (taskIndex === "2") {
+            targetValue *= 100;
+        }
 
         let questParams = {
             target: targetValue,

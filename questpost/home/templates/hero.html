@@ -20,6 +20,8 @@
         <select name="quest_index">
             <option value="all">All</option>
             <option value="0">Spotify Popularity</option>
+            <option value="1">Youtube Subscribers</option>
+            <option value="2">Open PageRank</option>
             <!-- Add more options as necessary -->
         </select>
         <button type="submit">
@@ -38,7 +40,27 @@
             you'll receive payment in Ether.
         </p>
     </div>
+
+    <!-- YouTube Subscribers Quest -->
+    <div class="quest-description" id="youtube-subscribers-quest">
+        <h3>YouTube Subscribers Quest</h3>
+        <p>
+            The task here is to increase the subscriber count for a specific YouTube channel. Fulfill the 
+            subscriber count requirement specified in the contract and get rewarded in Ether.
+        </p>
+    </div>
+
+    <!-- Open PageRank Quest -->
+    <div class="quest-description" id="open-pagerank-quest">
+        <h3>Open PageRank Quest</h3>
+        <p>
+            In this quest, elevate the PageRank of a given webpage. Check out a page's ranking at 
+            <a href="https://www.domcop.com/openpagerank/" target="_blank" rel="noopener">Domcop OpenPageRank</a>. 
+            If you manage to lift the PageRank above the target set in the contract, you will be rewarded in Ether.
+        </p>
+    </div>
     <!-- More quests go here -->
 </section>
+
 
 {% endblock %}

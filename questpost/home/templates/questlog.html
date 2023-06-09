@@ -26,8 +26,8 @@
             <p>Quest: {{ quest.address|short_address }} <span class="copy" onclick="copyAddress('{{ quest.address }}')">&#128203;</span></p>
             <p>Task: {{ quest.questIndex|quest_map }} </p>
             <p>{{ quest.args|args_display:quest.questIndex }}</p>
-            <p>Target: {{ quest.target }} </p>
-            <p>Deadline: {{ quest.deadline|timestamp_to_date }} </p> <!-- Map this to date in Python backend using datetime -->
+            <p>Target: {{ quest.target|filter_target:quest.questIndex }} </p>
+            <p>Deadline: {{ quest.deadline|timestamp_to_date }} UTC</p> 
             <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
             <p>Value: {{ quest.value }} </p>
             <p>Status: {{ quest.status }} </p>
@@ -35,7 +35,7 @@
         <div class="fulfill-button-container">
             <div class="fulfill-button-wrapper">
                 <button class="fulfill-button" id="fulfill-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
-                data-address="{{ quest.address }}", data-args="{{ quest.args }}">Fulfill</button>
+                data-address="{{ quest.address }}", data-args="{{ quest.args }}" data-index="{{ quest.questIndex|stringformat:'s' }}">Fulfill</button>
             </div>
             <div class="fulfill-button-wrapper">
                 <button class="complete-button" id="complete-button-{{ quest.pk }}" data-quest="{{ quest.pk }}"
@@ -49,7 +49,7 @@
         document.getElementById("fulfill-button-{{ quest.pk }}").addEventListener("click", executeRequest)
         document.getElementById("complete-button-{{ quest.pk }}").addEventListener("click", settleQuest)
 
-        const CONTRACT_ADDRESS = "{{ address }}"
+        var CONTRACT_ADDRESS = "{{ address }}"
         console.log(CONTRACT_ADDRESS)
         async function executeRequest(event) {
             let jsonData;
@@ -57,9 +57,35 @@
                 .then(response => response.json())
                 .then(data => jsonData = data)
 
-            const source = "var artistId = args[0]\nconst clientIdAndSecret = secrets.clientId + ':' + secrets.clientSecret\nconst base64Encoded = Buffer.from(clientIdAndSecret).toString('base64')\n\nconst oauthTokenResponse = await Functions.makeHttpRequest({\n    url: 'https://accounts.spotify.com/api/token',\n    method: 'POST',\n    headers: {\n        'Content-Type': 'application/x-www-form-urlencoded',\n        'Authorization': 'Basic ' + base64Encoded,\n    },\n    data: { \n        'grant_type': 'client_credentials', \n    }\n})\n\nif (!oauthTokenResponse.error) {\n    console.log(oauthTokenResponse.data.access_token)\n    const artistPopularityResponse = await Functions.makeHttpRequest({\n        url: `https://api.spotify.com/v1/artists/${artistId}`,\n        headers: {\n            'Authorization': `Bearer ${oauthTokenResponse.data['access_token']}`,\n            'Content-Type': 'application/json',\n        }\n    })\n    return Functions.encodeUint256(artistPopularityResponse.data['popularity'])\n}\nelse {\n    console.log('Oauth error!')\n    console.log(oauthTokenResponse)\n}\n"
+            const spotifySource = "var artistId = args[0]\nconst clientIdAndSecret = secrets.clientId + ':' + secrets.clientSecret\nconst base64Encoded = Buffer.from(clientIdAndSecret).toString('base64')\n\nconst oauthTokenResponse = await Functions.makeHttpRequest({\n    url: 'https://accounts.spotify.com/api/token',\n    method: 'POST',\n    headers: {\n        'Content-Type': 'application/x-www-form-urlencoded',\n        'Authorization': 'Basic ' + base64Encoded,\n    },\n    data: { \n        'grant_type': 'client_credentials', \n    }\n})\n\nif (!oauthTokenResponse.error) {\n    console.log(oauthTokenResponse.data.access_token)\n    const artistPopularityResponse = await Functions.makeHttpRequest({\n        url: `https://api.spotify.com/v1/artists/${artistId}`,\n        headers: {\n            'Authorization': `Bearer ${oauthTokenResponse.data['access_token']}`,\n            'Content-Type': 'application/json',\n        }\n    })\n    return Functions.encodeUint256(artistPopularityResponse.data['popularity'])\n}\nelse {\n    console.log('Oauth error!')\n    console.log(oauthTokenResponse)\n}\n"
+            const spotifySecrets = "0x6df9f26c74909c8901e0b9692546b5080308213db31557e6a23535be277ea37b48611cbec1140699fb820a45b3d3f43e39cf25524f98a7ad11aa1589287481f3f4630da988699bdcb02daf6e9abcfa1bd1152e7a66d128efc4fd4c40508fbe81af9a0adb96d6eea55fc3e06b1d7215c3ebfbcf918548911c99b668e670c2a6efebd58d007a739d3156a23215989ebb7cca1ba79e07687fef4789cd800b3c6b2c84"
 
-            const secrets = "0x6df9f26c74909c8901e0b9692546b5080308213db31557e6a23535be277ea37b48611cbec1140699fb820a45b3d3f43e39cf25524f98a7ad11aa1589287481f3f4630da988699bdcb02daf6e9abcfa1bd1152e7a66d128efc4fd4c40508fbe81af9a0adb96d6eea55fc3e06b1d7215c3ebfbcf918548911c99b668e670c2a6efebd58d007a739d3156a23215989ebb7cca1ba79e07687fef4789cd800b3c6b2c84"
+            const youtubeSource = "var channelId = args[0]\n\nconst youtubeResponse = await Functions.makeHttpRequest({\n    url: `https://www.googleapis.com/youtube/v3/channels`,\n    method: 'get',\n    params: {\n        part: 'statistics',\n        id: channelId,\n        key: secrets.apiKey\n    }\n});\n\nif (youtubeResponse.error) {\n    console.error('An error occurred while fetching data:', youtubeResponse);\n    return;\n}\n\nconst subscriberCount = youtubeResponse.data.items[0].statistics.subscriberCount;\nreturn Functions.encodeUint256(parseInt(subscriberCount));"
+            const youtubeSecrets  = "0x44b88b5305fdbbdd1920a1b6e6d4de2d03f7b0737f8a4e6a31890a4bca4bc9ff41ee3b9056047643f2d46ea69b511345976156a933573dcefbc93b8ad1c6498d8c4fa17d61fb9b6c5048e6ff5d94f2b7e3a555cc3f4d409987a0f4004645a48c73f93a1be6a47c7fa0cbcf416f8acb52590c10c752d6da5b926a658cf62dd8f4e5cf74c560558a0a002198d9592251deeabbf0ecdff0e5c50275e74307776b93e4"
+
+            const pageRankSource = "var domain = args[0]\n\nconst pageRankingResponse = await Functions.makeHttpRequest({\n    url: `https://openpagerank.com/api/v1.0/getPageRank?domains[]=${domain}`,\n    headers: { 'API-OPR': secrets.apiKey }\n});\n\nreturn Functions.encodeUint256(100*pageRankingResponse.data.response[0].page_rank_decimal);"
+            const pageRankSecrets = "0x58df920d530edd4c5399409f601cd2c303ddd7bc07c1cc6f84e2c637d285dd2b0b304ca723ffe5b4fcfa2e09171c9e31bac735f0f9b2b812b1d7ea4ab687b0d47797d06610f2f9f79cd47b1d2d1fb8afd6493de288b50ac46a66e6ea6074ba6dafe31e6eea619f38ba464ab3ef3d259af86ebb3291171b5723cfe7a7f6a93351a155c53e6006b8db7cb9d5a3b66316a6740e30abcf35e7009cf306214405c4a74a"
+
+            const questIndex = event.target.getAttribute("data-index");
+
+            let source, secrets;
+            switch (questIndex) {
+                case "0":  // Spotify
+                    source = spotifySource;
+                    secrets = spotifySecrets;
+                    break;
+                case "1":  // YouTube
+                    source = youtubeSource;
+                    secrets = youtubeSecrets;
+                    break;
+                case "2":  // PageRank
+                    source = pageRankSource;
+                    secrets = pageRankSecrets;
+                    break;
+                default:
+                    console.error("Invalid quest index:", questIndex);
+                    return;
+            }
 
             const questAddress = event.target.getAttribute("data-address")
             const args = JSON.parse(event.target.getAttribute("data-args").replace(/'/g, '"'));
@@ -103,8 +129,8 @@
             <p>Quest: {{ quest.address|short_address }} <span class="copy" onclick="copyAddress('{{ quest.address }}')">&#128203;</span></p>
             <p>Task: {{ quest.questIndex|quest_map }} </p>
             <p>{{ quest.args|args_display:quest.questIndex }}</p>
-            <p>Target: {{ quest.target }} </p>
-            <p>Deadline: {{ quest.deadline|timestamp_to_date }} </p> <!-- Map this to date in Python backend using datetime -->
+            <p>Target: {{ quest.target|filter_target:quest.questIndex }} </p>
+            <p>Deadline: {{ quest.deadline|timestamp_to_date }} UTC</p> <!-- Map this to date in Python backend using datetime -->
             <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
             <p>Value: {{ quest.value }} </p>
             <p>Status: {{ quest.status }} </p>

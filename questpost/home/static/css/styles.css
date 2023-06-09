@@ -178,7 +178,7 @@ button {
     padding: 20px;
     margin-bottom: 20px;
     box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2); /* This will give a shadow to the box to create a card effect */
-    max-width: 300px; /* or set it to whatever maximum width you prefer */
+    max-width: 450px; /* or set it to whatever maximum width you prefer */
     margin: 10px auto 10px;
     text-align: center;
     font-family: arial;
@@ -192,6 +192,7 @@ button {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    width: 100%; /* ensure child div takes up full width of parent */
 }
 
 .quest-data p {
@@ -290,6 +291,20 @@ form.search-form {
 /* Specific styles for the Spotify Popularity quest */
 #spotify-popularity-quest {
     background-color: #1db954; /* Spotify green */
+    color: #ffffff; /* White text for contrast */
+    padding: 20px; /* Some padding for space */
+}
+
+/* Specific styles for the YouTube Subscribers quest */
+#youtube-subscribers-quest {
+    background-color: #ff0000; /* YouTube red */
+    color: #ffffff; /* White text for contrast */
+    padding: 20px; /* Some padding for space */
+}
+
+/* Specific styles for the Open PageRank quest */
+#open-pagerank-quest {
+    background-color: #438eb9; /* OpenPageRank blue */
     color: #ffffff; /* White text for contrast */
     padding: 20px; /* Some padding for space */
 }

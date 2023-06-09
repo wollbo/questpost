@@ -14,6 +14,8 @@
         <select name="quest_index" id="quest-dropdown">
             <option value="all">All</option>
             <option value="0">Spotify Popularity</option>
+            <option value="1">YouTube Subscribers</option>
+            <option value="2">Open PageRank</option>
             <!-- Add more options as necessary -->
         </select>
     </div>
@@ -27,7 +29,7 @@
                 <p>Task: {{ quest.questIndex|quest_map }} </p>
                 <p>{{ quest.args|args_display:quest.questIndex }}</p>
                 <p>Value: {{quest.value}} </p>
-                <p>Target: {{ quest.target }} </p>
+                <p>Target: {{ quest.target|filter_target:quest.questIndex }} </p>
                 <p>Duration: {{ quest.duration|seconds_to_days }} days </p>
                 <p>Reward: {{ quest.reward|divide_by_eighteen }} ETH</p>
             </div>
@@ -41,20 +43,35 @@
 </div>
 
 <script>
-    document.getElementById("quest-dropdown").addEventListener("change", function () {
-        const selectedQuestIndex = this.value;
-        const questCards = document.querySelectorAll(".quest-info");
 
-        questCards.forEach(function (questCard) {
-            const questIndex = questCard.getAttribute("data-quest-index");
-            if (selectedQuestIndex === "all" || questIndex === selectedQuestIndex) {
-                questCard.style.display = "block";
-            } else {
-                questCard.style.display = "none";
-            }
+document.addEventListener("DOMContentLoaded", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const questIndex = urlParams.get('quest_index');
+        const dropdown = document.getElementById("quest-dropdown");
+
+        if (questIndex !== null) {
+            dropdown.value = questIndex; // HTML dropdown value is string by default
+        }
+
+        document.getElementById("quest-dropdown").addEventListener("change", function () {
+            const selectedQuestIndex = this.value;
+            const questCards = document.querySelectorAll(".quest-info");
+
+            questCards.forEach(function (questCard) {
+                const questIndex = questCard.getAttribute("data-quest-index");
+                if (selectedQuestIndex === "all" || questIndex === selectedQuestIndex) {
+                    questCard.style.display = "block";
+                } else {
+                    questCard.style.display = "none";
+                }
+            });
         });
-    });
 
+        // If questIndex is not null, trigger change event after adding the event listener
+        if (questIndex !== null) {
+            dropdown.dispatchEvent(new Event('change'));
+        }
+        
     const claimQuestBtns = document.getElementsByClassName("claim-button");
     Array.from(claimQuestBtns).forEach(function (claimQuestBtn) {
         claimQuestBtn.addEventListener("click", claimQuest);
@@ -87,6 +104,9 @@
             /* clipboard write failed */
         });
     }
+    });
+
+   
 
 </script>
 

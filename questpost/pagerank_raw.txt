@@ -1,0 +1,1 @@
+var domain = args[0]\n\nconst pageRankingResponse = await Functions.makeHttpRequest({\n    url: `https://openpagerank.com/api/v1.0/getPageRank?domains[]=${domain}`,\n    headers: { 'API-OPR': secrets.apiKey }\n});\n\nreturn Functions.encodeUint256(100*pageRankingResponse.data.response[0].page_rank_decimal);
