@@ -116,6 +116,22 @@
 {% endif %}
 <script>
 
+    const taskPlaceholderMap = {
+        "0": { // Spotify Popularity
+            target: "Enter target popularity (1 to 100)",
+            args: "Enter Spotify Artist ID",
+        },
+        "1": { // Youtube Subscribers
+            target: "Enter target subscriber count",
+            args: "Enter YouTube Channel ID",
+        },
+        "2": { // Open PageRank
+            target: "Enter target PageRank (1 to 10)",
+            args: "Enter Website URL",
+        }
+    }
+
+
     document.getElementById('quest-filter').addEventListener('change', function() {
         var type = this.value;
         var activeQuests = document.getElementById('active-quests');
@@ -135,7 +151,12 @@
     let taskIndex = "0";
     function updateTaskIndex() {
         taskIndex = document.getElementById("tasks").value;
+        document.getElementById("input-target").placeholder = taskPlaceholderMap[taskIndex].target;
+        document.getElementById("input-args").placeholder = taskPlaceholderMap[taskIndex].args;
     }
+    // Call updateTaskIndex initially to set the placeholders for the first option
+    updateTaskIndex();
+
 
     let rewardValue;
     function updateRewardValue() {
