@@ -26,7 +26,7 @@ pip install -e
 ```
 
 
-To run the website locally you need to create an .env file with the fields
+In order to run the website locally you need to create an .env file at the root of the repository with the fields
 ```
 DATABASE_URL
 DATABASE_HOST
@@ -38,6 +38,9 @@ DATABASE_SSLMODE
 MORALIS_API_KEY
 CONTRACT_ADDRESS = 0x0015bE3497E390aaAa38c1bcFf044c92672Dbb2d
 ```
+Initialize the database fields by running `python manage.py migrate`
+and run the website through the command `python manage.py runserver`
+
 ### Usage
 
 A live deployment of the platform is available at [questpost.xyz](https://www.questpost.xyz)
