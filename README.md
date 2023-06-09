@@ -1,14 +1,14 @@
-#QuestPost
+# QuestPost
 
 QuestPost is a platform that connects task completion to verifiable APIs and smart contracts, creating a censorship-resistant and trust-minimized way for individuals to complete tasks for money. By reducing the friction and disputes traditionally associated with tasks such as digital marketing or search engine optimization, QuestPost offers a unique approach to earning money online.
-##Table of Contents
+## Table of Contents
 
     -Installation
     -Usage
     -Contributing
     -License
 
-###Installation
+### Installation
 The project dependencies are defined in pyproject.toml. Create a new virtual environment standing at the root of the repository using 
 
 #### Linux
@@ -38,10 +38,10 @@ DATABASE_SSLMODE
 MORALIS_API_KEY
 CONTRACT_ADDRESS = 0x0015bE3497E390aaAa38c1bcFf044c92672Dbb2d
 ```
-###Usage
+### Usage
 
 A live deployment of the platform is available at [questpost.xyz](https://www.questpost.xyz)
 
-###License
+### License
 
 GPL-3.0
