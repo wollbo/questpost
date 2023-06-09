@@ -76,15 +76,32 @@ nav ul li a {
     /* Adjust this value according to the height of the buttons */
 }
 
+.quest-text h3 {
+    font-size: 1.8em;   /* adjust as necessary */
+}
+
+.quest-text p {
+    font-size: 1.4em; /* adjust as necessary */
+}
+
+/* Button styles */
+.button-container {
+    display: inline-block;
+    width: 80px !important;
+}
+
 /* Styles for smaller screens (less than 768px) */
 @media (max-width: 767px) {
     header {
         flex-direction: column;
     }
 
-    nav ul {
-        flex-direction: row;
+    nav {
         align-items: center;
+    }
+
+    nav ul {
+        flex-direction: row; /* change this back to 'row' */
         justify-content: center;
         width: 100%;
         padding-left: 0;
@@ -96,24 +113,30 @@ nav ul li a {
 
     .auth-button {
         margin-top: 10px;
+        width: 100%; /* add this line to make the button full width */
     }
 
     .button-container {
         display: flex;
         justify-content: center;
         width: 100%;
+        padding: 10px 5px; /* add this line to add some padding to the button on smaller screens */
+        
     }
 
-    nav {
-        display: flex;
-        flex-direction: column;
+    nav ul li a {
+        display: inline-block;
+        line-height: 0;
+        /* Adjust this value according to the height of the buttons */
     }
-}
 
-/* Button styles */
-.button-container {
-    display: inline-block;
-    width: 80px !important;
+    .quest-text h3 {
+        font-size: 1.6em;   /* adjust as necessary */
+    }
+    
+    .quest-text p {
+        font-size: 1.2em; /* adjust as necessary */
+    }
 }
 
 .auth-button {
@@ -285,7 +308,36 @@ form.search-form {
 
 /* Styles for the individual quest descriptions */
 .quest-description {
-    margin-bottom: 20px; /* Some margin for space between quests */
+    display: flex; 
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px;
+}
+
+.quest-img {
+    width: 50%;     /* adjust as necessary */
+    max-width: 600px;
+    height: auto;   /* maintain aspect ratio */
+}
+
+.quest-text {
+    width: 45%;     /* adjust as necessary */
+    padding: 20px;
+}
+
+#spotify-popularity-quest .quest-text,
+#open-pagerank-quest .quest-text {
+    text-align: right;
+}
+
+#youtube-subscribers-quest .quest-text {
+    text-align: left;
+}
+
+/* Remove default margin-bottom */
+.quest-description:last-child {
+    margin-bottom: 0;
 }
 
 /* Specific styles for the Spotify Popularity quest */

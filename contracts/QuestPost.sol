@@ -137,7 +137,7 @@ contract QuestPost is FunctionsClient, Ownable {
         bytes calldata secrets,
         string[] calldata args,
         uint32 gasLimit
-    ) public returns (bytes32) {
+    ) public returns (bytes32) { // add questsOnly modifier
         Functions.Request memory req;
         req.initializeRequest(
             Functions.Location.Inline,
@@ -215,6 +215,7 @@ contract Quest {
     // add collateral requirement equal to staking APR * duration * reward
     // it could be that questgiver should fund the functions subscription
     function claim() external payable {
+        require(state == State.CREATED);
         quester = payable(msg.sender);
         deadline = block.timestamp + duration;
         qp.emitQuestAccepted(
@@ -226,6 +227,24 @@ contract Quest {
             deadline
         );
         state = State.CLAIMED;
+    }
+
+    // owner can cancel contract if it has not been claimed
+    function cancel() external payable {
+        require(msg.sender == owner, "Sender is not owner");
+        require(state == State.CREATED);
+        owner.transfer(address(this).balance);
+        qp.emitQuestFinished(
+            address(this),
+            owner,
+            target,
+            questIndex,
+            quester,
+            deadline,
+            0,
+            "CANCELLED"
+        );
+        state = State.FINISHED;
     }
 
     function callFulfillmentStatus(uint32 gasLimit) external {

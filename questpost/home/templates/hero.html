@@ -34,31 +34,41 @@
 <section class="quest-descriptions">
     <!-- Spotify Popularity Quest -->
     <div class="quest-description" id="spotify-popularity-quest">
-        <h3>Spotify Popularity Quest</h3>
-        <p>
-            In this quest, improve an artist's ranking on Spotify. If you reach the threshold set in the contract, 
-            you'll receive payment in Ether.
-        </p>
+        <div class="quest-text">
+            <h3>Spotify Popularity Quest</h3>
+            <p>
+                In this quest, improve an artist's ranking on Spotify. If you reach the threshold set in the contract, 
+                you'll receive payment in Ether.
+            </p>
+        </div>
+        <img src="{% static 'images/spotify.png' %}" alt="Spotify" class="quest-img">
     </div>
 
     <!-- YouTube Subscribers Quest -->
     <div class="quest-description" id="youtube-subscribers-quest">
-        <h3>YouTube Subscribers Quest</h3>
-        <p>
-            The task here is to increase the subscriber count for a specific YouTube channel. Fulfill the 
-            subscriber count requirement specified in the contract and get rewarded in Ether.
-        </p>
+        <img src="{% static 'images/youtube.png' %}" alt="YouTube" class="quest-img">
+        <div class="quest-text">
+            <h3>YouTube Subscribers Quest</h3>
+            <p>
+                The task here is to increase the subscriber count for a specific YouTube channel. Fulfill the 
+                subscriber count requirement specified in the contract and get rewarded in Ether.
+            </p>
+        </div>
     </div>
 
     <!-- Open PageRank Quest -->
     <div class="quest-description" id="open-pagerank-quest">
-        <h3>Open PageRank Quest</h3>
-        <p>
-            In this quest, elevate the PageRank of a given webpage. Check out a page's ranking at 
-            <a href="https://www.domcop.com/openpagerank/" target="_blank" rel="noopener">Domcop OpenPageRank</a>. 
-            If you manage to lift the PageRank above the target set in the contract, you will be rewarded in Ether.
-        </p>
+        <div class="quest-text">
+            <h3>Open PageRank Quest</h3>
+            <p>
+                In this quest, elevate the PageRank of a given webpage. Check out a page's ranking at 
+                <a href="https://www.domcop.com/openpagerank/" target="_blank" rel="noopener">Domcop OpenPageRank</a>. 
+                If you manage to lift the PageRank above the target set in the contract, you will be rewarded in Ether.
+            </p>
+        </div>
+        <img src="{% static 'images/pagerank.png' %}" alt="PageRank" class="quest-img">
     </div>
+
     <!-- More quests go here -->
 </section>
 
